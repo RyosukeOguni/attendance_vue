@@ -12,12 +12,11 @@
           v-model="group"
           active-class="deep-purple--text text--accent-4"
         >
-
-          <v-list-item v-for="(school, i) in schools">
+          <v-list-item v-for="(school, i) in schools" :key="i">
             <v-list-item-icon>
-              <v-icon>mdi-home</v-icon>
+              <v-icon>mdi-school</v-icon>
             </v-list-item-icon>
-            <v-list-item-title>{{school.schoo_name}}</v-list-item-title>
+            <v-list-item-title>{{ school.school_name }}</v-list-item-title>
           </v-list-item>
 
           <v-list-item>
