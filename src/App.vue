@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar color="blue darken-2" dark>
+    <v-app-bar color="blue darken-2" dark app>
       <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
 
       <v-toolbar-title>出欠管理システム</v-toolbar-title>
@@ -23,13 +23,13 @@
             <v-list-item-icon>
               <v-icon>mdi-account</v-icon>
             </v-list-item-icon>
-            <v-list-item-title>ログイン</v-list-item-title>
+            <v-list-item-title @click="onClickLogin">ログイン</v-list-item-title>
           </v-list-item>
           <v-list-item v-else>
             <v-list-item-icon>
               <v-icon>mdi-account</v-icon>
             </v-list-item-icon>
-            <v-list-item-title>ログアウト</v-list-item-title>
+            <v-list-item-title @click="onClickLogout">ログアウト</v-list-item-title>
           </v-list-item>
         </v-list-item-group>
       </v-list>
@@ -38,13 +38,20 @@
     <v-main>
       <router-view />
     </v-main>
+    <!-- 追加／編集ダイアログ -->
+    <LoginDialog ref="loginDialog" />
   </v-app>
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex'
+import LoginDialog from './components/LoginDialog.vue'
+
 export default {
   name: 'App',
+  components: {
+    LoginDialog,
+  },
   // naviの状態
   data: () => ({
     drawer: false,
@@ -61,6 +68,10 @@ export default {
   // settingモジュールからactionを呼び出し
   methods: {
     ...mapActions('setting', ['getSchools']),
+    /** ログインメニューがクリックされたとき */
+    onClickLogin() {
+      this.$refs.loginDialog.open()
+    },
   },
 }
 </script>
