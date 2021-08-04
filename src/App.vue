@@ -19,11 +19,17 @@
             <v-list-item-title>{{ school.school_name }}</v-list-item-title>
           </v-list-item>
 
-          <v-list-item>
+          <v-list-item v-if="!isAuth">
             <v-list-item-icon>
               <v-icon>mdi-account</v-icon>
             </v-list-item-icon>
             <v-list-item-title>ログイン</v-list-item-title>
+          </v-list-item>
+          <v-list-item v-else>
+            <v-list-item-icon>
+              <v-icon>mdi-account</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>ログアウト</v-list-item-title>
           </v-list-item>
         </v-list-item-group>
       </v-list>
@@ -47,6 +53,7 @@ export default {
   // settingモジュールからstateを呼び出し
   computed: {
     ...mapState('setting', ['schools']),
+    ...mapState('auth', ['isAuth']),
   },
   created() {
     this.getSchools()
