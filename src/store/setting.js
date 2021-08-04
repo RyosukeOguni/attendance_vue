@@ -7,10 +7,6 @@ export default {
     schools: [],
   },
 
-  // getters: {
-  //   schools: (state) => state.schools,
-  // },
-
   mutations: {
     // ▼ コールバック関数で受け取った処理をstateに行う
     stateInput(state, callback) {

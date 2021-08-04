@@ -36,26 +36,24 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import { mapActions } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 export default {
   name: 'App',
+  // naviの状態
   data: () => ({
     drawer: false,
     group: null,
   }),
-
+  // settingモジュールからstateを呼び出し
   computed: {
     ...mapState('setting', ['schools']),
   },
-
   created() {
     this.getSchools()
   },
+  // settingモジュールからactionを呼び出し
   methods: {
-    ...mapActions({
-      getSchools: 'setting/getSchools',
-    }),
+    ...mapActions('setting', ['getSchools']),
   },
 }
 </script>
