@@ -5,7 +5,7 @@
       <v-card-title>ログイン</v-card-title>
       <v-divider />
       <v-card-text class="mt-5">
-        <v-alert v-if="errorMessage" type="warning" dense>ログインに失敗しました</v-alert>
+        <!-- <v-alert v-if="errorMessage" type="warning" dense>ログインに失敗しました</v-alert> -->
         <v-form ref="form" v-model="valid">
           <!-- タイトル -->
           <v-text-field
@@ -76,11 +76,11 @@ export default {
   computed: {
     ...mapState('auth', ['loading', 'isAuth', 'errorMessage']),
   },
-  watch: {
-    errorMessage() {
-      this.error = true
-    },
-  },
+  // watch: {
+  //   errorMessage() {
+  //     this.error = true
+  //   },
+  // },
   methods: {
     ...mapActions('auth', ['login']),
     /**
@@ -104,9 +104,11 @@ export default {
     },
     /** フォームの内容を初期化 */
     resetForm() {
-      this.account = ''
-      this.password = ''
-      this.errorMessage = false
+      this.loginDate = {
+        account: '',
+        password: '',
+      }
+      // this.errorMessage = false
       this.$refs.form.resetValidation()
     },
   },
