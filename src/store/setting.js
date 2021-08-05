@@ -5,6 +5,10 @@ export default {
 
   state: {
     schools: [],
+    /** 読込状態 */
+    loading: false,
+    /** エラーメッセージ */
+    errorMessage: '',
   },
 
   mutations: {
@@ -12,11 +16,20 @@ export default {
     stateInput(state, callback) {
       callback(state)
     },
+    /** 読込状態をセット */
+    setLoading(state, { value }) {
+      state.loading = value
+    },
+    /** エラーメッセージをセット */
+    setErrorMessage(state, { message }) {
+      state.errorMessage = message
+    },
   },
 
   actions: {
     // ▼ 非同期通信でDBから利用者一覧データを取得
     async getSchools({ commit }) {
+      commit('setLoading', { value: true })
       await axios
         .get('api/schools')
         .then((response) => {
@@ -30,8 +43,9 @@ export default {
           })
         })
         .catch((error) => {
-          console.log(error)
+          commit('setErrorMessage', { message: error })
         })
+      commit('setLoading', { value: false })
     },
 
     // ▼ コールバック関数で受け取った処理をそのままmutationsに送る

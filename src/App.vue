@@ -4,6 +4,14 @@
       <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
 
       <v-toolbar-title>出欠管理システム</v-toolbar-title>
+
+      <v-progress-linear
+        :active="loading"
+        :indeterminate="loading"
+        absolute
+        bottom
+        color="orange accent-2"
+      ></v-progress-linear>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" absolute temporary>
@@ -12,6 +20,13 @@
           v-model="group"
           active-class="deep-purple--text text--accent-4"
         >
+          <v-progress-linear
+            :active="loading"
+            :indeterminate="loading"
+            color="orange accent-1"
+            height="20"
+            ><span style="color: orange">所属校読込中...</span>
+          </v-progress-linear>
           <!-- 所属校分のリンクを表示 -->
           <v-list-item v-for="(school, i) in schools" :key="i">
             <v-list-item-icon>
@@ -79,7 +94,7 @@ export default {
   }),
   computed: {
     // モジュールからstateを呼び出し
-    ...mapState('setting', ['schools']),
+    ...mapState('setting', ['schools', 'loading']),
     ...mapState('auth', ['isAuth']),
   },
   created() {

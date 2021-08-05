@@ -4,6 +4,7 @@ export default {
   state: {
     isAuth: false,
     user: null,
+    /** 読込状態 */
     loading: false,
     /** エラーメッセージ */
     errorMessage: '',
@@ -23,10 +24,11 @@ export default {
     SET_USER(state, value) {
       state.user = value
     },
+    /** 読込状態をセット */
     setLoading(state, { value }) {
       state.loading = value
     },
-    /** エラーメッセージをセットします */
+    /** エラーメッセージをセット */
     setErrorMessage(state, { message }) {
       state.errorMessage = message
     },

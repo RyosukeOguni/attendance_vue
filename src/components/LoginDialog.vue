@@ -5,11 +5,20 @@
       <v-card-title>ログイン</v-card-title>
       <v-divider />
       <v-card-text class="mt-5">
+        <v-alert v-if="errorMessage" type="warning" dense>ログインに失敗しました</v-alert>
         <v-form ref="form" v-model="valid">
           <!-- タイトル -->
-          <v-text-field label="アカウント" v-model="account" :rules="accountRules" />
+          <v-text-field
+            label="アカウント"
+            v-model="loginDate.account"
+            :rules="accountRules"
+          />
           <!-- メモ -->
-          <v-text-field label="パスワード" v-model="password" :rules="passwordRule" />
+          <v-text-field
+            label="パスワード"
+            v-model="loginDate.password"
+            :rules="passwordRule"
+          />
         </v-form>
       </v-card-text>
       <v-divider />
@@ -39,15 +48,18 @@ export default {
 
   data() {
     return {
+      loginDate: {
+        /** アカウント */
+        account: '',
+        /** パスワード */
+        password: '',
+      },
+      /** エラーメッセージ */
+      error: false,
       /** ダイアログの表示状態 */
       show: false,
       /** 入力したデータが有効かどうか */
       valid: false,
-
-      /** アカウント */
-      account: '',
-      /** パスワード */
-      password: '',
 
       /** バリデーションルール */
       accountRules: [
@@ -62,16 +74,15 @@ export default {
   },
 
   computed: {
-    ...mapState('auth', {
-      /** ローディング状態 */
-      loading: (state) => state.loading,
-      isAuth: (state) => state.isAuth,
-    }),
+    ...mapState('auth', ['loading', 'isAuth', 'errorMessage']),
   },
-
+  watch: {
+    errorMessage() {
+      this.error = true
+    },
+  },
   methods: {
     ...mapActions('auth', ['login']),
-
     /**
      * ダイアログを表示します。
      * このメソッドは親から呼び出されます。
@@ -86,19 +97,16 @@ export default {
     },
     /** ログインがクリックされたとき */
     async onClickAction() {
-      const login_date = {
-        account: this.account,
-        password: this.password,
-      }
-      await this.login(login_date)
+      await this.login(this.loginDate)
       if (this.isAuth) {
         this.show = false
       }
     },
-    /** フォームの内容を初期化します */
+    /** フォームの内容を初期化 */
     resetForm() {
       this.account = ''
       this.password = ''
+      this.errorMessage = false
       this.$refs.form.resetValidation()
     },
   },
