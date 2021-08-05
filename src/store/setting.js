@@ -18,7 +18,7 @@ export default {
     // ▼ 非同期通信でDBから利用者一覧データを取得
     async getSchools({ commit }) {
       await axios
-        .get('schools')
+        .get('api/schools')
         .then((response) => {
           console.log(response)
           // stateに反映

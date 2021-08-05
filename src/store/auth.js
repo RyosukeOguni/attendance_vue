@@ -4,6 +4,9 @@ export default {
   state: {
     isAuth: false,
     user: null,
+    loading: false,
+    /** エラーメッセージ */
+    errorMessage: '',
   },
   getters: {
     isAuth(state) {
@@ -20,16 +23,45 @@ export default {
     SET_USER(state, value) {
       state.user = value
     },
+    setLoading(state, { value }) {
+      state.loading = value
+    },
+    /** エラーメッセージをセットします */
+    setErrorMessage(state, { message }) {
+      state.errorMessage = message
+    },
   },
   actions: {
-    async login({ dispatch }, credentials) {
-      await axios.get('sanctum/csrf-cookie')
-      await axios.post('login', credentials)
-      return await dispatch('me')
+    /** ログイン */
+    async login({ commit, dispatch }, item) {
+      commit('setLoading', { value: true })
+      try {
+        await axios.get('sanctum/csrf-cookie')
+        await axios.post('api/login', item)
+        await dispatch('loginTest')
+      } catch (e) {
+        commit('setErrorMessage', { message: e })
+      } finally {
+        commit('setLoading', { value: false })
+      }
     },
-    async me({ commit }) {
+    /** ログアウト */
+    async logout({ commit }) {
+      commit('setLoading', { value: true })
+      try {
+        await axios.get('sanctum/csrf-cookie')
+        await axios.post('api/logout')
+      } catch (e) {
+        commit('setErrorMessage', { message: e })
+      } finally {
+        commit('SET_IS_AUTH', false)
+        commit('setLoading', { value: false })
+      }
+    },
+    // 疎通確認
+    async loginTest({ commit }) {
       return await axios
-        .get('admin')
+        .get('api/admin')
         .then((response) => {
           commit('SET_IS_AUTH', true)
           commit('SET_USER', response.data)

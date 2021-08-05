@@ -2,7 +2,7 @@
   <!-- データ追加／編集ダイアログ -->
   <v-dialog v-model="show" scrollable persistent max-width="500px" eager>
     <v-card>
-      <v-card-title>{{ titleText }}</v-card-title>
+      <v-card-title>ログイン</v-card-title>
       <v-divider />
       <v-card-text class="mt-5">
         <v-form ref="form" v-model="valid">
@@ -25,7 +25,7 @@
           :loading="loading"
           @click="onClickAction"
         >
-          {{ actionText }}
+          ログイン
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -33,6 +33,7 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex'
 export default {
   name: 'LoginDialog',
 
@@ -42,8 +43,6 @@ export default {
       show: false,
       /** 入力したデータが有効かどうか */
       valid: false,
-      /** ローディング状態 */
-      loading: false,
 
       /** アカウント */
       account: '',
@@ -63,35 +62,42 @@ export default {
   },
 
   computed: {
-    /** ダイアログのタイトル */
-    titleText() {
-      return 'ログイン'
-    },
-    /** ダイアログのアクション */
-    actionText() {
-      return 'ログイン'
-    },
+    ...mapState('auth', {
+      /** ローディング状態 */
+      loading: (state) => state.loading,
+      isAuth: (state) => state.isAuth,
+    }),
   },
 
   methods: {
+    ...mapActions('auth', ['login']),
+
     /**
      * ダイアログを表示します。
      * このメソッドは親から呼び出されます。
      */
     open() {
       this.show = true
+      this.resetForm()
     },
     /** キャンセルがクリックされたとき */
     onClickClose() {
       this.show = false
     },
     /** ログインがクリックされたとき */
-    onClickAction() {
-      // あとで実装
+    async onClickAction() {
+      const login_date = {
+        account: this.account,
+        password: this.password,
+      }
+      await this.login(login_date)
+      if (this.isAuth) {
+        this.show = false
+      }
     },
     /** フォームの内容を初期化します */
     resetForm() {
-      this.acconut = ''
+      this.account = ''
       this.password = ''
       this.$refs.form.resetValidation()
     },
