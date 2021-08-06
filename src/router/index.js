@@ -1,22 +1,54 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import Stamp from '../views/Stamp.vue'
+import Attendance from '../views/Attendance.vue'
+import Output from '../views/Output.vue'
+import User from '../views/User.vue'
+import Auth from '@/store/auth.js'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home,
+    redirect: '/stamp/1',
+    component: Stamp,
+    children: [
+      {
+        path: '/stamp/:id(1|2)',
+        name: 'Stamp',
+        component: Stamp,
+      },
+    ],
+  },
+
+  // {
+  //   path: '/',
+  //   name: 'Stamp',
+  //   component: Stamp,
+  // },
+  // {
+  //   path: '/stamp/:id(1|2)',
+  //   name: 'Stamp',
+  //   component: Stamp,
+  // },
+  {
+    path: '/attendance',
+    name: 'Attendance',
+    component: Attendance,
+    meta: { requiresAuth: true },
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
+    path: '/output',
+    name: 'Output',
+    component: Output,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/user',
+    name: 'User',
+    component: User,
+    meta: { requiresAuth: true },
   },
 ]
 
@@ -24,6 +56,14 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes,
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.requiresAuth) && !Auth.state.isAuth) {
+    next({ path: '/stamp/1' })
+  } else {
+    next()
+  }
 })
 
 export default router

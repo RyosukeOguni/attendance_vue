@@ -1,17 +1,17 @@
 <template>
   <v-app>
-    <v-app-bar color="blue darken-2" dark app>
+    <v-app-bar color="blue darken-2" dark app dense>
       <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
 
-      <v-toolbar-title>出欠管理システム</v-toolbar-title>
+      <v-toolbar-title class="text-subtitle-1">出欠管理システム</v-toolbar-title>
 
-      <!-- <v-progress-linear
+      <v-progress-linear
         :active="loading"
         :indeterminate="loading"
         absolute
         bottom
         color="orange accent-2"
-      ></v-progress-linear> -->
+      ></v-progress-linear>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" absolute temporary>
@@ -24,36 +24,47 @@
           ><span style="color: orange">所属校読込中...</span>
         </v-progress-linear>
         <!-- 所属校分のリンクを表示 -->
-        <v-list-item v-for="school in schools" :key="school.id" link>
+        <v-list-item
+          v-for="school in schools"
+          :key="school.id"
+          link
+          :to="'/stamp/' + school.id"
+        >
           <v-list-item-icon>
-            <v-icon>mdi-school</v-icon>
+            <v-icon>mdi-office-building</v-icon>
           </v-list-item-icon>
           <v-list-item-title>{{ school.school_name }}</v-list-item-title>
         </v-list-item>
-        <v-list-item v-if="!isAuth" link>
+        <v-list-item v-if="!isAuth" link @click="onClickLogin">
           <v-list-item-icon>
             <v-icon>mdi-login</v-icon>
           </v-list-item-icon>
-          <v-list-item-title @click="onClickLogin">ログイン</v-list-item-title>
+          <v-list-item-title>ログイン</v-list-item-title>
         </v-list-item>
         <div v-else>
-          <v-list-item link>
+          <v-list-item link to="/attendance">
             <v-list-item-icon>
-              <v-icon>mdi-database</v-icon>
+              <v-icon>mdi-timetable</v-icon>
             </v-list-item-icon>
-            <v-list-item-title>出欠管理</v-list-item-title>
+            <v-list-item-title>出欠記録管理</v-list-item-title>
           </v-list-item>
-          <v-list-item link>
+          <v-list-item link to="/output">
+            <v-list-item-icon>
+              <v-icon>mdi-printer</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>出欠記録出力</v-list-item-title>
+          </v-list-item>
+          <v-list-item link to="/user">
             <v-list-item-icon>
               <v-icon>mdi-account-details</v-icon>
             </v-list-item-icon>
             <v-list-item-title>利用者管理</v-list-item-title>
           </v-list-item>
-          <v-list-item link>
+          <v-list-item link @click="onClickLogout">
             <v-list-item-icon>
               <v-icon>mdi-logout</v-icon>
             </v-list-item-icon>
-            <v-list-item-title @click="onClickLogout">ログアウト</v-list-item-title>
+            <v-list-item-title>ログアウト</v-list-item-title>
           </v-list-item>
         </div>
       </v-list>

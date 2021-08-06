@@ -2,8 +2,10 @@ import axios from 'axios'
 export default {
   namespaced: true,
   state: {
+    /** 認証状態 */
     isAuth: false,
-    user: null,
+    /** 認証状態 */
+    admin: null,
     /** 読込状態 */
     loading: false,
     /** エラーメッセージ */
@@ -13,16 +15,16 @@ export default {
     isAuth(state) {
       return state.isAuth
     },
-    user(state) {
-      return state.user
+    admin(state) {
+      return state.admin
     },
   },
   mutations: {
-    SET_IS_AUTH(state, value) {
+    setAuth(state, value) {
       state.isAuth = value
     },
-    SET_USER(state, value) {
-      state.user = value
+    setAdmin(state, value) {
+      state.admin = value
     },
     /** 読込状態をセット */
     setLoading(state, { value }) {
@@ -56,7 +58,8 @@ export default {
       } catch (e) {
         commit('setErrorMessage', { message: e })
       } finally {
-        commit('SET_IS_AUTH', false)
+        commit('setAuth', false)
+        commit('setAdmin', null)
         commit('setLoading', { value: false })
       }
     },
@@ -65,12 +68,12 @@ export default {
       return await axios
         .get('api/admin')
         .then((response) => {
-          commit('SET_IS_AUTH', true)
-          commit('SET_USER', response.data)
+          commit('setAuth', true)
+          commit('setAdmin', response.data)
         })
         .catch(() => {
-          commit('SET_IS_AUTH', false)
-          commit('SET_USER', null)
+          commit('setAuth', false)
+          commit('setAdmin', null)
         })
     },
   },

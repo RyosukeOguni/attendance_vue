@@ -56,6 +56,7 @@ export default {
       await this.logout()
       if (!this.isAuth) {
         this.show = false
+        this.$router.replace({ path: '/' })
       }
     },
   },

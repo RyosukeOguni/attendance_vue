@@ -100,6 +100,7 @@ export default {
       await this.login(this.loginDate)
       if (this.isAuth) {
         this.show = false
+        this.$router.replace({ path: '/attendance' })
       }
     },
     /** フォームの内容を初期化 */

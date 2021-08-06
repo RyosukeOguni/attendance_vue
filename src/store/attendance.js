@@ -29,7 +29,7 @@ export default {
 
   actions: {
     // ▼ 非同期通信でDBから利用者一覧データを取得
-    async getSchools({ commit }) {
+    async getAttendances({ commit }) {
       commit('setLoading', { value: true })
       await axios
         .get('api/schools')
