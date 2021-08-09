@@ -66,8 +66,8 @@
         :items="attendanceData"
         :footer-props="footerProps"
         :loading="loading"
-        :sort-by="'date'"
-        :sort-desc="true"
+        :sort-by="'user_name'"
+        :sort-desc="false"
         :items-per-page="30"
         mobile-breakpoint="0"
       >
@@ -98,6 +98,10 @@
         </template>
       </v-data-table>
     </v-card>
+    <!-- 追加／編集ダイアログ -->
+    <EditDialog ref="editDialog" />
+    <!-- 削除ダイアログ -->
+    <DeleteDialog ref="deleteDialog" />
   </div>
 </template>
 
@@ -108,7 +112,7 @@ import axios from 'axios'
 import { mapState } from 'vuex'
 export default {
   name: 'Attendance',
-  comments: {
+  components: {
     EditDialog,
     DeleteDialog,
   },
@@ -214,11 +218,11 @@ export default {
     },
     /** 編集ボタンがクリックされたとき */
     onClickEdit(item) {
-      this.$refs.EditDialog.open('edit', item)
+      this.$refs.editDialog.open('edit', item)
     },
     // 削除ボタンがクリックされたとき
     onClickDelete(item) {
-      this.$refs.DeleteDialog.open(item)
+      this.$refs.deleteDialog.open(item)
     },
   },
 }
