@@ -6,6 +6,8 @@ export default {
   state: {
     /** 所属校 */
     schools: [],
+    /** 備考 */
+    notes: [],
     /** 読込状態 */
     loading: false,
     /** エラーメッセージ */
@@ -21,21 +23,22 @@ export default {
     setLoading(state, { value }) {
       state.loading = value
     },
-    /** エラーメッセージをセット */
-    setErrorMessage(state, { message }) {
-      state.errorMessage = message
-    },
   },
 
   actions: {
     // ▼ 非同期通信でDBから利用者一覧データを取得
-    async getSchools({ commit }) {
+    async getSettings({ dispatch, commit }) {
       commit('setLoading', { value: true })
-      await axios
+      await dispatch('getSchools')
+      await dispatch('getNotes')
+      commit('setLoading', { value: false })
+    },
+
+    // 所属校取得
+    async getSchools({ commit }) {
+      return await axios
         .get('api/schools')
         .then((response) => {
-          console.log(response)
-          // stateに反映
           commit('stateInput', (state) => {
             state.schools = response.data.data.map((data) => {
               let attribute = data.data.attribute
@@ -43,10 +46,30 @@ export default {
             })
           })
         })
-        .catch((error) => {
-          commit('setErrorMessage', { message: error })
+        .catch(() => {
+          commit('stateInput', (state) => {
+            state.schools = []
+          })
         })
-      commit('setLoading', { value: false })
+    },
+
+    // 備考取得
+    async getNotes({ commit }) {
+      return await axios
+        .get('api/notes')
+        .then((response) => {
+          commit('stateInput', (state) => {
+            state.notes = response.data.data.map((data) => {
+              let attribute = data.data.attribute
+              return attribute
+            })
+          })
+        })
+        .catch(() => {
+          commit('stateInput', (state) => {
+            state.notes = []
+          })
+        })
     },
 
     // ▼ コールバック関数で受け取った処理をそのままmutationsに送る

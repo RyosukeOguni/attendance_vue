@@ -102,11 +102,11 @@ export default {
     ...mapState('auth', ['isAuth']),
   },
   created() {
-    this.getSchools()
+    this.getSettings()
   },
   methods: {
     // モジュールからactionを呼び出し
-    ...mapActions('setting', ['getSchools']),
+    ...mapActions('setting', ['getSettings']),
     /** ログインメニューがクリックされたとき */
     onClickLogin() {
       this.$refs.loginDialog.open()

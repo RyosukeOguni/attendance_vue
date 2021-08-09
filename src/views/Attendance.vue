@@ -5,7 +5,7 @@
         <!-- 所属校選択 -->
         <v-col cols="4">
           <v-select
-            v-model="school"
+            v-model="school_id"
             :items="schools"
             item-text="school_name"
             item-value="id"
@@ -47,9 +47,7 @@
             >
               <v-spacer />
               <v-btn text color="grey" @click="menu = false">キャンセル</v-btn>
-              <v-btn text color="primary" @click="$refs.menu.save(yearMonthDay)"
-                >選択</v-btn
-              >
+              <v-btn text color="primary" @click="onSelectMonth">選択</v-btn>
             </v-date-picker>
           </v-menu>
         </v-col>
@@ -65,8 +63,7 @@
       <v-data-table
         class="text-no-wrap"
         :headers="tableHeaders"
-        :items="tableData"
-        :search="search"
+        :items="attendanceData"
         :footer-props="footerProps"
         :loading="loading"
         :sort-by="'date'"
@@ -105,60 +102,45 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import EditDialog from '../components/EditDialog.vue'
+import DeleteDialog from '../components/DeleteDialog.vue'
+import axios from 'axios'
+import { mapState } from 'vuex'
 export default {
   name: 'Attendance',
-
+  comments: {
+    EditDialog,
+    DeleteDialog,
+  },
   data() {
     const today = new Date()
     const year = today.getFullYear()
     const month = ('0' + (today.getMonth() + 1)).slice(-2)
-    const day = ('0' + (today.getDay() + 1)).slice(-2)
+    const day = ('0' + today.getDate()).slice(-2)
 
     return {
       /** ローディング状態 */
       loading: false,
       /** 日付選択メニューの状態 */
       menu: false,
-      /** 検索文字 */
-      school: {},
+      /** 所属校選択 */
+      school_id: 1,
       /** 選択年月 */
       yearMonthDay: `${year}-${month}-${day}`,
-      /** テーブルに表示させるデータ */
-      tableData: [
-        /** サンプルデータ */
-        {
-          id: 5,
-          user_id: 5,
-          school_id: 2,
-          note_id: 3,
-          user_name: 'ムラヤマ カオリ',
-          note: 'メール',
-          insert_date: '2021-07-01',
-          start: '11:45:00',
-          end: '14:15:00',
-          food_fg: 0,
-          outside_fg: 1,
-          medical_fg: 1,
-        },
-        {
-          id: 12,
-          user_id: 12,
-          school_id: 2,
-          note_id: 1,
-          user_name: 'ナカムラ ヨウイチ',
-          note: '通所',
-          insert_date: '2021-07-01',
-          start: '11:30:00',
-          end: '15:30:00',
-          food_fg: 0,
-          outside_fg: 1,
-          medical_fg: 0,
-        },
-      ],
+      /** 出欠記録データ */
+      attendanceData: [],
     }
   },
-
+  // 所属校セレクトを変更時に出欠記録テーブルを更新
+  watch: {
+    school_id: function () {
+      this.updateTable()
+    },
+  },
+  // ページ読込時に出欠記録テーブルを更新
+  mounted() {
+    this.updateTable()
+  },
   computed: {
     // モジュールからstateを呼び出し
     ...mapState('setting', ['schools']),
@@ -177,7 +159,7 @@ export default {
           align: 'center',
           sortable: false,
         },
-        { text: '備考', value: 'note', sortable: false },
+        { text: '備考', value: 'note' },
         { text: '操作', value: 'actions', sortable: false },
       ]
     },
@@ -187,26 +169,37 @@ export default {
       return { itemsPerPageText: '', itemsPerPageOptions: [] }
     },
   },
-  methods: {
-    ...mapActions('attendance', ['getAttendances']),
-    /** 表示させるデータを更新します */
-    async updateTable() {
-      const yearMonth = this.yearMonth
-      const list = this.abData[yearMonth]
 
-      if (list) {
-        this.tableData = list
-      } else {
-        await this.fetchAbData({ yearMonth })
-        this.tableData = this.abData[yearMonth]
-      }
+  methods: {
+    /** 出欠記録テーブルを更新 */
+    async updateTable() {
+      this.loading = true
+      await this.getAttendance()
+      this.loading = false
+    },
+
+    // 出欠記録をAPIから取得
+    async getAttendance() {
+      return await axios
+        .get('api/attendances' + `?school_id=${this.school_id}&date=${this.yearMonthDay}`)
+        .then((response) => {
+          this.attendanceData = response.data.data.map((data) => {
+            let attribute = data.data.attribute
+            return attribute
+          })
+        })
+        .catch(() => {
+          this.attendanceData = []
+        })
     },
 
     /** 月選択ボタンがクリックされたとき */
     onSelectMonth() {
-      this.$refs.menu.save(this.yearMonth)
+      // menuで選択された値を親コンポーネントに返却
+      this.$refs.menu.save(this.yearMonthDay)
       this.updateTable()
     },
+
     /** boolean値をチェックアイコンに置換 */
     changeIcon(num) {
       return num ? 'mdi-check-bold' : null
@@ -217,15 +210,15 @@ export default {
     },
     /** 追加ボタンがクリックされたとき */
     onClickAdd() {
-      this.$refs.itemDialog.open('add')
+      this.$refs.EditDialog.open('add')
     },
     /** 編集ボタンがクリックされたとき */
     onClickEdit(item) {
-      this.$refs.itemDialog.open('edit', item)
+      this.$refs.EditDialog.open('edit', item)
     },
     // 削除ボタンがクリックされたとき
     onClickDelete(item) {
-      this.$refs.deleteDialog.open(item)
+      this.$refs.DeleteDialog.open(item)
     },
   },
 }
