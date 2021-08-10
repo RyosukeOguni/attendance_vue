@@ -8,8 +8,8 @@
         <v-form ref="form" v-model="valid">
           <!-- 日付選択 -->
           <v-menu
-            ref="menu"
-            v-model="menu"
+            ref="menu_date"
+            v-model="menu_date"
             :close-on-content-click="false"
             :return-value.sync="item.insert_date"
             transition="scale-transition"
@@ -23,7 +23,6 @@
                 prepend-icon="mdi-calendar"
                 readonly
                 v-on="on"
-                hide-details
               />
             </template>
             <v-date-picker
@@ -35,8 +34,8 @@
               scrollable
             >
               <v-spacer />
-              <v-btn text color="grey" @click="menu = false">キャンセル</v-btn>
-              <v-btn text color="primary" @click="$refs.menu.save(item.insert_date)"
+              <v-btn text color="grey" @click="menu_date = false">キャンセル</v-btn>
+              <v-btn text color="primary" @click="$refs.menu_date.save(item.insert_date)"
                 >選択</v-btn
               >
             </v-date-picker>
@@ -48,7 +47,6 @@
             item-text="school_name"
             item-value="id"
             label="所属校"
-            hide-details
           ></v-select>
           <!-- 利用者 -->
           <v-select
@@ -57,7 +55,7 @@
             item-text="name"
             item-value="id"
             label="利用者"
-            hide-details
+            no-data-text="所属校を選択して下さい"
           ></v-select>
           <!-- 備考 -->
           <v-select
@@ -66,29 +64,87 @@
             item-text="note"
             item-value="id"
             label="備考"
-            hide-details
           ></v-select>
           <!-- 開始時間 -->
-          <v-time-picker
-            v-model="item.start"
-            format="24hr"
-            landscape
-            scrollable
-          ></v-time-picker>
+          <v-menu
+            ref="menu_start"
+            v-model="menu_start"
+            :return-value.sync="item.start"
+            :close-on-content-click="false"
+            transition="scale-transition"
+            offset-y
+            max-width="290px"
+            min-width="290px"
+          >
+            <template v-slot:activator="{ on }">
+              <v-text-field
+                v-model="item.start"
+                prepend-icon="mdi-clock-outline"
+                label="開始時間"
+                readonly
+                v-on="on"
+              />
+            </template>
+
+            <v-time-picker
+              v-model="item.start"
+              :max="item.end"
+              :allowed-hours="allowedHours"
+              :allowed-minutes="allowedStep"
+              format="24hr"
+              scrollable
+            >
+              <v-spacer />
+              <v-btn text color="grey" @click="menu_start = false">キャンセル</v-btn>
+              <v-btn text color="primary" @click="$refs.menu_start.save(item.start)"
+                >選択</v-btn
+              >
+            </v-time-picker>
+          </v-menu>
+
           <!-- 終了時間 -->
-          <v-time-picker
-            v-model="item.end"
-            format="24hr"
-            landscape
-            scrollable
-          ></v-time-picker>
+          <v-menu
+            ref="menu_end"
+            v-model="menu_end"
+            :return-value.sync="item.end"
+            :close-on-content-click="false"
+            transition="scale-transition"
+            offset-y
+            max-width="290px"
+            min-width="290px"
+          >
+            <template v-slot:activator="{ on }">
+              <v-text-field
+                v-model="item.end"
+                prepend-icon="mdi-clock-outline"
+                label="終了時間"
+                readonly
+                v-on="on"
+              />
+            </template>
+            <v-time-picker
+              v-model="item.end"
+              :min="item.start"
+              max="16:00"
+              :allowed-hours="allowedHours"
+              :allowed-minutes="allowedStep"
+              format="24hr"
+              scrollable
+            >
+              <v-spacer />
+              <v-btn text color="grey" @click="menu_end = false">キャンセル</v-btn>
+              <v-btn text color="primary" @click="$refs.menu_end.save(item.end)"
+                >選択</v-btn
+              >
+            </v-time-picker>
+          </v-menu>
+
           <!-- 食事提供加算 -->
           <v-checkbox
             v-model="item.food_fg"
             label="食事提供加算"
             color="primary"
             :value="item.food_fg"
-            hide-details
           ></v-checkbox>
           <!-- 施設外支援フラグ -->
           <v-checkbox
@@ -96,7 +152,6 @@
             label="施設外支援フラグ"
             color="primary"
             :value="item.outside_fg"
-            hide-details
           ></v-checkbox>
           <!-- 医療連携体制加算フラグ -->
           <v-checkbox
@@ -104,7 +159,6 @@
             label="医療連携体制加算フラグ"
             color="primary"
             :value="item.medical_fg"
-            hide-details
           ></v-checkbox>
         </v-form>
       </v-card-text>
@@ -131,28 +185,6 @@
 <script>
 import axios from 'axios'
 import { mapState } from 'vuex'
-const itemDate = () => ({
-  /** id */
-  id: '',
-  /** 日付 */
-  insert_date: '',
-  /** 利用者ID */
-  user_id: null,
-  /** 所属校ID */
-  school_id: null,
-  /** 備考ID */
-  note_id: null,
-  /** 開始時間 */
-  start: '',
-  /** 終了時間 */
-  end: '',
-  /** 食事提供加算 */
-  food_fg: false,
-  /** 施設外支援フラグ */
-  outside_fg: false,
-  /** 医療連携体制加算フラグ */
-  medical_fg: false,
-})
 export default {
   name: 'EditDialog',
 
@@ -165,13 +197,17 @@ export default {
       /** 入力したデータが有効かどうか */
       valid: false,
       /** 日付選択メニューの表示状態 */
-      menu: false,
+      menu_date: false,
+      /** 開始時間メニューの表示状態 */
+      menu_start: false,
+      /** 終了時間メニューの表示状態 */
+      menu_end: false,
       /** 利用者リスト */
       usersList: [],
       /** 操作タイプ 'add' or 'edit' */
       actionType: 'add',
       /** 出欠記録データ */
-      item: itemDate(),
+      item: this.setItemDate(),
       /** バリデーションルール */
       userIdRules: (v) => v || '利用者を選択して下さい',
       schoolIdRule: (v) => v || '所属校を選択して下さい',
@@ -180,14 +216,14 @@ export default {
   },
 
   computed: {
-    ...mapState('setting', ['schools', 'notes']),
+    ...mapState('setting', ['schools', 'notes', 'today']),
     /** ダイアログのタイトル */
     titleText() {
-      return this.actionType === 'add' ? 'データ追加' : 'データ編集'
+      return this.actionType === 'add' ? '出欠記録作成' : '出欠記録更新'
     },
     /** ダイアログのアクション */
     actionText() {
-      return this.actionType === 'add' ? '追加' : '更新'
+      return this.actionType === 'add' ? '作成' : '更新'
     },
     userListSelect: function () {
       return function (school_id) {
@@ -221,16 +257,42 @@ export default {
       this.show = false
     },
 
-    /** 追加／更新がクリックされたとき */
+    /** 登録／更新がクリックされたとき */
     async onClickAction() {
       if (this.actionType === 'add') {
-        //新規登録の場合
+        //登録の場合
         await this.addAbData(this.item)
       } else {
         //更新の場合
         await this.updateAbData(this.item)
       }
       this.show = false
+    },
+
+    /** 出欠記録オブジェクトを生成 */
+    setItemDate() {
+      return {
+        /** id */
+        id: '',
+        /** 日付 */
+        insert_date: this.today,
+        /** 利用者ID */
+        user_id: null,
+        /** 所属校ID */
+        school_id: null,
+        /** 備考ID */
+        note_id: null,
+        /** 開始時間 */
+        start: '',
+        /** 終了時間 */
+        end: '',
+        /** 食事提供加算 */
+        food_fg: false,
+        /** 施設外支援フラグ */
+        outside_fg: false,
+        /** 医療連携体制加算フラグ */
+        medical_fg: false,
+      }
     },
 
     // 利用者リストをAPIから取得
@@ -248,11 +310,14 @@ export default {
         })
     },
 
-    /** フォームの内容を初期化します */
+    /** フォームの内容を初期化 */
     resetForm() {
-      this.item = itemDate()
+      this.item = this.setItemDate()
       this.$refs.form.resetValidation()
     },
+    /** 時刻設定 */
+    allowedHours: (v) => v >= 10 && v <= 16,
+    allowedStep: (m) => m % 15 === 0,
   },
 }
 </script>

@@ -55,7 +55,7 @@
 
         <!-- 追加ボタン -->
         <v-col class="text-right" cols="4">
-          <v-btn dark color="green"> 出欠記録作成 </v-btn>
+          <v-btn dark color="green" @click="onClickAdd()"> 出欠記録作成 </v-btn>
         </v-col>
       </v-card-title>
 
@@ -117,11 +117,6 @@ export default {
     DeleteDialog,
   },
   data() {
-    const today = new Date()
-    const year = today.getFullYear()
-    const month = ('0' + (today.getMonth() + 1)).slice(-2)
-    const day = ('0' + today.getDate()).slice(-2)
-
     return {
       /** ローディング状態 */
       loading: false,
@@ -130,24 +125,25 @@ export default {
       /** 所属校選択 */
       school_id: 1,
       /** 選択年月 */
-      yearMonthDay: `${year}-${month}-${day}`,
+      yearMonthDay: '',
       /** 出欠記録データ */
       attendanceData: [],
     }
   },
-  // 所属校セレクトを変更時に出欠記録テーブルを更新
+  /** 所属校セレクトを変更時に出欠記録テーブルを更新 */
   watch: {
     school_id: function () {
       this.updateTable()
     },
   },
-  // ページ読込時に出欠記録テーブルを更新
+  // ページ読込時に出欠記録テーブルを更新＆日付を更新
   mounted() {
+    this.setYearMonthDay()
     this.updateTable()
   },
   computed: {
-    // モジュールからstateを呼び出し
-    ...mapState('setting', ['schools']),
+    /** モジュールからstateを呼び出し */
+    ...mapState('setting', ['schools', 'today']),
 
     /** テーブルのヘッダー設定 */
     tableHeaders() {
@@ -175,6 +171,11 @@ export default {
   },
 
   methods: {
+    /** storeから日付を取得 */
+    setYearMonthDay() {
+      this.yearMonthDay = this.today
+    },
+
     /** 出欠記録テーブルを更新 */
     async updateTable() {
       this.loading = true
@@ -182,7 +183,7 @@ export default {
       this.loading = false
     },
 
-    // 出欠記録をAPIから取得
+    /** 出欠記録をAPIから取得 */
     async getAttendance() {
       return await axios
         .get('api/attendances' + `?school_id=${this.school_id}&date=${this.yearMonthDay}`)
@@ -212,15 +213,15 @@ export default {
     changeTime(num) {
       return num.slice(0, 5)
     },
-    /** 追加ボタンがクリックされたとき */
+    /** 出欠記録作成ボタンがクリックされたとき */
     onClickAdd() {
-      this.$refs.EditDialog.open('add')
+      this.$refs.editDialog.open('add')
     },
     /** 編集ボタンがクリックされたとき */
     onClickEdit(item) {
       this.$refs.editDialog.open('edit', item)
     },
-    // 削除ボタンがクリックされたとき
+    /** 削除ボタンがクリックされたとき */
     onClickDelete(item) {
       this.$refs.deleteDialog.open(item)
     },

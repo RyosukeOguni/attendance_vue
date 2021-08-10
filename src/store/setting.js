@@ -4,14 +4,14 @@ export default {
   namespaced: true,
 
   state: {
+    /** 本日の日付 */
+    today: '',
     /** 所属校 */
     schools: [],
     /** 備考 */
     notes: [],
     /** 読込状態 */
     loading: false,
-    /** エラーメッセージ */
-    errorMessage: '',
   },
 
   mutations: {
@@ -29,12 +29,13 @@ export default {
     // ▼ 非同期通信でDBから利用者一覧データを取得
     async getSettings({ dispatch, commit }) {
       commit('setLoading', { value: true })
+      await dispatch('getYearMonthDay')
       await dispatch('getSchools')
-      await dispatch('getNotes')
       commit('setLoading', { value: false })
+      await dispatch('getNotes')
     },
 
-    // 所属校取得
+    /** 所属校取得 */
     async getSchools({ commit }) {
       return await axios
         .get('api/schools')
@@ -53,7 +54,7 @@ export default {
         })
     },
 
-    // 備考取得
+    /** 備考取得 */
     async getNotes({ commit }) {
       return await axios
         .get('api/notes')
@@ -72,7 +73,18 @@ export default {
         })
     },
 
-    // ▼ コールバック関数で受け取った処理をそのままmutationsに送る
+    /** 本日の年月日を取得 */
+    getYearMonthDay({ commit }) {
+      const today = new Date()
+      const year = today.getFullYear()
+      const month = ('0' + (today.getMonth() + 1)).slice(-2)
+      const day = ('0' + today.getDate()).slice(-2)
+      commit('stateInput', (state) => {
+        state.today = `${year}-${month}-${day}`
+      })
+    },
+
+    /** コールバック関数で受け取った処理をそのままmutationsに送る */
     stateInput({ commit }, callback) {
       commit('stateInput', callback)
     },
