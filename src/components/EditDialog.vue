@@ -47,6 +47,7 @@
             item-text="school_name"
             item-value="id"
             label="所属校"
+            :rules="[schoolIdRule]"
           ></v-select>
           <!-- 利用者 -->
           <v-select
@@ -55,6 +56,7 @@
             item-text="name"
             item-value="id"
             label="利用者"
+            :rules="[userIdRule]"
             no-data-text="所属校を選択して下さい"
           ></v-select>
           <!-- 備考 -->
@@ -64,6 +66,7 @@
             item-text="note"
             item-value="id"
             label="備考"
+            :rules="[noteIdRule]"
           ></v-select>
           <!-- 開始時間 -->
           <v-menu
@@ -209,9 +212,9 @@ export default {
       /** 出欠記録データ */
       item: this.setItemDate(),
       /** バリデーションルール */
-      userIdRules: (v) => v || '利用者を選択して下さい',
-      schoolIdRule: (v) => v || '所属校を選択して下さい',
-      noteIdRule: (v) => v || '備考を選択して下さい',
+      userIdRule: (v) => !!v || '利用者を選択して下さい',
+      schoolIdRule: (v) => !!v || '所属校を選択して下さい',
+      noteIdRule: (v) => !!v || '備考を選択して下さい',
     }
   },
 

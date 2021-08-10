@@ -136,9 +136,12 @@ export default {
       this.updateTable()
     },
   },
-  // ページ読込時に出欠記録テーブルを更新＆日付を更新
-  mounted() {
+  // ページ読込時に日付を更新
+  created() {
     this.setYearMonthDay()
+  },
+  // ページ読込時に出欠記録テーブルを更新
+  mounted() {
     this.updateTable()
   },
   computed: {
@@ -171,7 +174,7 @@ export default {
   },
 
   methods: {
-    /** storeから日付を取得 */
+    /** storeから日付を取得してyearMonthDayにセット */
     setYearMonthDay() {
       this.yearMonthDay = this.today
     },
