@@ -11,6 +11,7 @@
             ref="menu_date"
             v-model="menu_date"
             :close-on-content-click="false"
+            :close-on-click="false"
             :return-value.sync="item.insert_date"
             transition="scale-transition"
             offset-y
@@ -74,6 +75,7 @@
             v-model="menu_start"
             :return-value.sync="item.start"
             :close-on-content-click="false"
+            :close-on-click="false"
             transition="scale-transition"
             offset-y
             max-width="290px"
@@ -111,6 +113,7 @@
             v-model="menu_end"
             :return-value.sync="item.end"
             :close-on-content-click="false"
+            :close-on-click="false"
             transition="scale-transition"
             offset-y
             max-width="290px"
@@ -234,6 +237,16 @@ export default {
       }
     },
   },
+  /** 所属校セレクトを変更時に出欠記録テーブルを更新 */
+  watch: {
+    'item.school_id': {
+      handler(newValue, oldValue) {
+        if (newValue !== oldValue && oldValue !== null) {
+          this.item.user_id = null
+        }
+      },
+    },
+  },
   // 所属校セレクトを変更時に出欠記録テーブルを更新
   created() {
     this.getUsers()
@@ -246,8 +259,6 @@ export default {
     open(actionType, item) {
       this.show = true
       this.actionType = actionType
-      this.resetForm()
-
       if (actionType === 'edit') {
         this.item = { ...item }
         delete this.item.user_name
@@ -258,6 +269,7 @@ export default {
     /** キャンセルがクリックされたとき */
     onClickClose() {
       this.show = false
+      this.resetForm()
     },
 
     /** 登録／更新がクリックされたとき */
@@ -286,9 +298,9 @@ export default {
         /** 備考ID */
         note_id: null,
         /** 開始時間 */
-        start: '',
+        start: '10:00',
         /** 終了時間 */
-        end: '',
+        end: '16:00',
         /** 食事提供加算 */
         food_fg: false,
         /** 施設外支援フラグ */

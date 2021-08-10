@@ -22,6 +22,7 @@
             ref="menu"
             v-model="menu"
             :close-on-content-click="false"
+            :close-on-click="false"
             :return-value.sync="yearMonthDay"
             transition="scale-transition"
             offset-y
