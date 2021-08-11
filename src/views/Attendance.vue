@@ -100,15 +100,15 @@
       </v-data-table>
     </v-card>
     <!-- 追加／編集ダイアログ -->
-    <EditDialog ref="editDialog" />
+    <EditDialog ref="editDialog" @onClickAction="onClickAction" />
     <!-- 削除ダイアログ -->
     <DeleteDialog ref="deleteDialog" />
   </div>
 </template>
 
 <script>
-import EditDialog from '../components/EditDialog.vue'
-import DeleteDialog from '../components/DeleteDialog.vue'
+import EditDialog from '../components/AttendanceEditDialog.vue'
+import DeleteDialog from '../components/AttendanceDeleteDialog.vue'
 import common from '../plugins/common.js'
 import axios from 'axios'
 import { mapState } from 'vuex'
@@ -175,12 +175,12 @@ export default {
     /** 出欠記録テーブルを更新 */
     async updateTable() {
       this.loading = true
-      await this.getAttendance()
+      await this.getAtData()
       this.loading = false
     },
 
     /** 出欠記録をAPIから取得 */
-    async getAttendance() {
+    async getAtData() {
       return await axios
         .get('api/attendances' + `?school_id=${this.school_id}&date=${this.yearMonthDay}`)
         .then((response) => {
@@ -192,6 +192,24 @@ export default {
         .catch(() => {
           this.attendanceData = []
         })
+    },
+
+    /** 登録／更新がクリックされたとき */
+    async onClickAction({ actionType, item }) {
+      this.loading = true
+      if (actionType === 'add') {
+        /** 登録後、返却されたデータをattendanceDataに追加 */
+        this.attendanceData = [item, ...this.attendanceData]
+      } else {
+        /** 更新後、返却されたデータをattendanceDataに追加 */
+        this.attendanceData = this.attendanceData.map((data) => {
+          if (data.id === item.id) {
+            return item
+          }
+          return data
+        })
+      }
+      this.loading = false
     },
 
     /** 月選択ボタンがクリックされたとき */

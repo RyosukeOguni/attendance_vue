@@ -276,21 +276,47 @@ export default {
 
     /** 登録／更新がクリックされたとき */
     async onClickAction() {
+      this.loading = true
       if (this.actionType === 'add') {
         /** 登録の場合 */
-        await this.addAbData(this.item)
+        await this.addAtData(this.item)
       } else {
         /** 更新の場合 */
-        await this.updateAbData(this.item)
+        await this.updateAtData(this.item)
       }
+      this.loading = false
       this.show = false
+    },
+
+    /** 出欠記録登録 */
+    async addAtData(item) {
+      delete item.school_id
+      return await axios
+        .post('api/attendances', item)
+        .then((response) => {
+          let attribute = response.data.data.attribute
+          this.$emit('onClickAction', { actionType: this.actionType, item: attribute })
+        })
+        .catch(() => {})
+    },
+
+    /** 出欠記録更新 */
+    async updateAtData(item) {
+      let item_id = item.id
+      delete item.id
+      delete item.school_id
+      return await axios
+        .put(`api/attendances/${item_id}`, item)
+        .then((response) => {
+          let attribute = response.data.data.attribute
+          this.$emit('onClickAction', { actionType: this.actionType, item: attribute })
+        })
+        .catch(() => {})
     },
 
     /** 出欠記録オブジェクトを生成 */
     setItemDate() {
       return {
-        /** id */
-        id: '',
         /** 日付 */
         insert_date: common.getYearMonthDay(),
         /** 利用者ID */
