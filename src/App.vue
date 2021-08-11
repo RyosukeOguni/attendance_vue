@@ -97,7 +97,7 @@ export default {
     group: null,
   }),
   computed: {
-    // モジュールからstateを呼び出し
+    /** モジュールからstateを呼び出し */
     ...mapState('setting', ['schools', 'loading']),
     ...mapState('auth', ['isAuth']),
   },
@@ -105,7 +105,7 @@ export default {
     this.getSettings()
   },
   methods: {
-    // モジュールからactionを呼び出し
+    /** モジュールからactionを呼び出し */
     ...mapActions('setting', ['getSettings']),
     /** ログインメニューがクリックされたとき */
     onClickLogin() {

@@ -190,6 +190,7 @@
 
 <script>
 import axios from 'axios'
+import common from '../plugins/common.js'
 import { mapState } from 'vuex'
 export default {
   name: 'EditDialog',
@@ -222,7 +223,7 @@ export default {
   },
 
   computed: {
-    ...mapState('setting', ['schools', 'notes', 'today']),
+    ...mapState('setting', ['schools', 'notes']),
     /** ダイアログのタイトル */
     titleText() {
       return this.actionType === 'add' ? '出欠記録作成' : '出欠記録更新'
@@ -231,6 +232,7 @@ export default {
     actionText() {
       return this.actionType === 'add' ? '作成' : '更新'
     },
+    /** 所属校で利用者を出し分け（引数で結果を返すcomputed） */
     userListSelect: function () {
       return function (school_id) {
         return this.usersList.filter((data) => data.school_id === school_id)
@@ -247,7 +249,7 @@ export default {
       },
     },
   },
-  // 所属校セレクトを変更時に出欠記録テーブルを更新
+  /** 利用者リストを取得 */
   created() {
     this.getUsers()
   },
@@ -275,10 +277,10 @@ export default {
     /** 登録／更新がクリックされたとき */
     async onClickAction() {
       if (this.actionType === 'add') {
-        //登録の場合
+        /** 登録の場合 */
         await this.addAbData(this.item)
       } else {
-        //更新の場合
+        /** 更新の場合 */
         await this.updateAbData(this.item)
       }
       this.show = false
@@ -290,7 +292,7 @@ export default {
         /** id */
         id: '',
         /** 日付 */
-        insert_date: this.today,
+        insert_date: common.getYearMonthDay(),
         /** 利用者ID */
         user_id: null,
         /** 所属校ID */
@@ -310,7 +312,7 @@ export default {
       }
     },
 
-    // 利用者リストをAPIから取得
+    /** 利用者リストをAPIから取得 */
     async getUsers() {
       return await axios
         .get('api/users')

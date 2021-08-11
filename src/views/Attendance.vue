@@ -74,11 +74,11 @@
       >
         <!-- 開始時刻 -->
         <template #item.start="{ item }">
-          {{ changeTime(item.start) }}
+          {{ item.start }}
         </template>
         <!-- 終了時刻 -->
         <template #item.end="{ item }">
-          {{ changeTime(item.end) }}
+          {{ item.end }}
         </template>
         <!-- 食事提供加算 -->
         <template #item.food_fg="{ item }">
@@ -109,6 +109,7 @@
 <script>
 import EditDialog from '../components/EditDialog.vue'
 import DeleteDialog from '../components/DeleteDialog.vue'
+import common from '../plugins/common.js'
 import axios from 'axios'
 import { mapState } from 'vuex'
 export default {
@@ -126,28 +127,24 @@ export default {
       /** 所属校選択 */
       school_id: 1,
       /** 選択年月 */
-      yearMonthDay: '',
+      yearMonthDay: common.getYearMonthDay(),
       /** 出欠記録データ */
       attendanceData: [],
     }
   },
-  /** 所属校セレクトを変更時に出欠記録テーブルを更新 */
+  /** 所属校を変更時に出欠記録テーブルを更新 */
   watch: {
     school_id: function () {
       this.updateTable()
     },
   },
-  // ページ読込時に日付を更新
   created() {
-    this.setYearMonthDay()
-  },
-  // ページ読込時に出欠記録テーブルを更新
-  mounted() {
+    /** 所属校と日付から出欠管理記録を取得 */
     this.updateTable()
   },
   computed: {
-    /** モジュールからstateを呼び出し */
-    ...mapState('setting', ['schools', 'today']),
+    /** settingモジュールからstateを呼び出し */
+    ...mapState('setting', ['schools']),
 
     /** テーブルのヘッダー設定 */
     tableHeaders() {
@@ -175,11 +172,6 @@ export default {
   },
 
   methods: {
-    /** storeから日付を取得してyearMonthDayにセット */
-    setYearMonthDay() {
-      this.yearMonthDay = this.today
-    },
-
     /** 出欠記録テーブルを更新 */
     async updateTable() {
       this.loading = true
@@ -204,7 +196,7 @@ export default {
 
     /** 月選択ボタンがクリックされたとき */
     onSelectMonth() {
-      // menuで選択された値を親コンポーネントに返却
+      /** menu内で選択された値を親コンポーネントに返却 */
       this.$refs.menu.save(this.yearMonthDay)
       this.updateTable()
     },
@@ -212,10 +204,6 @@ export default {
     /** boolean値をチェックアイコンに置換 */
     changeIcon(num) {
       return num ? 'mdi-check-bold' : null
-    },
-    /** 時刻の末尾":00"を削除 */
-    changeTime(num) {
-      return num.slice(0, 5)
     },
     /** 出欠記録作成ボタンがクリックされたとき */
     onClickAdd() {

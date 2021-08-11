@@ -9,6 +9,7 @@ import Auth from '@/store/auth.js'
 Vue.use(VueRouter)
 
 const routes = [
+  /** '/'のとき、'/stamp/1'にリダイレクト */
   {
     path: '/',
     redirect: '/stamp/1',
@@ -21,17 +22,7 @@ const routes = [
       },
     ],
   },
-
-  // {
-  //   path: '/',
-  //   name: 'Stamp',
-  //   component: Stamp,
-  // },
-  // {
-  //   path: '/stamp/:id(1|2)',
-  //   name: 'Stamp',
-  //   component: Stamp,
-  // },
+  /** requiresAuth: trueで認証状態でのみ疎通 */
   {
     path: '/attendance',
     name: 'Attendance',
@@ -58,6 +49,7 @@ const router = new VueRouter({
   routes,
 })
 
+/** storeのisAuthがtrueの時のみ、requiresAuth: trueのルートに疎通 */
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth) && !Auth.state.isAuth) {
     next({ path: '/stamp/1' })

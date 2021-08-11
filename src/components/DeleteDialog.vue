@@ -53,10 +53,10 @@ export default {
       this.show = false
     },
 
-    // 出欠記録をAPIから取得
+    /** 出欠記録APIから削除 */
     async deleteAbData(item) {
       return await axios
-        .get('api/attendances/' + item.id)
+        .delete('api/attendances/' + item.id)
         .then(() => {
           this.item = {}
         })
