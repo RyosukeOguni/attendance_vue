@@ -102,7 +102,7 @@
     <!-- 追加／編集ダイアログ -->
     <EditDialog ref="editDialog" @onClickAction="onClickAction" />
     <!-- 削除ダイアログ -->
-    <DeleteDialog ref="deleteDialog" />
+    <DeleteDialog ref="deleteDialog" @onClickAction="onClickAction" />
   </div>
 </template>
 
@@ -194,21 +194,10 @@ export default {
         })
     },
 
-    /** 登録／更新がクリックされたとき */
-    async onClickAction({ actionType, item }) {
+    /** 登録／更新／削除がクリックされたとき */
+    async onClickAction() {
       this.loading = true
-      if (actionType === 'add') {
-        /** 登録後、返却されたデータをattendanceDataに追加 */
-        this.attendanceData = [item, ...this.attendanceData]
-      } else {
-        /** 更新後、返却されたデータをattendanceDataに追加 */
-        this.attendanceData = this.attendanceData.map((data) => {
-          if (data.id === item.id) {
-            return item
-          }
-          return data
-        })
-      }
+      await this.updateTable()
       this.loading = false
     },
 

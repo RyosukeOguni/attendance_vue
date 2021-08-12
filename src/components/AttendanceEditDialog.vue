@@ -286,13 +286,15 @@ export default {
       }
       this.loading = false
       this.show = false
+      this.resetForm()
     },
 
     /** 出欠記録登録 */
     async addAtData(item) {
-      delete item.school_id
+      let json = { ...item }
+      delete json.school_id
       return await axios
-        .post('api/attendances', item)
+        .post('api/attendances', json)
         .then((response) => {
           let attribute = response.data.data.attribute
           this.$emit('onClickAction', { actionType: this.actionType, item: attribute })
@@ -302,11 +304,11 @@ export default {
 
     /** 出欠記録更新 */
     async updateAtData(item) {
-      let item_id = item.id
-      delete item.id
-      delete item.school_id
+      let json = { ...item }
+      delete json.id
+      delete json.school_id
       return await axios
-        .put(`api/attendances/${item_id}`, item)
+        .put(`api/attendances/${item.id}`, json)
         .then((response) => {
           let attribute = response.data.data.attribute
           this.$emit('onClickAction', { actionType: this.actionType, item: attribute })
