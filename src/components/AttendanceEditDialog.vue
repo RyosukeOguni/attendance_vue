@@ -4,7 +4,8 @@
     <v-card>
       <v-card-title>{{ titleText }}</v-card-title>
       <v-divider />
-      <v-card-text>
+      <!-- スクロールリセットのidを指定 -->
+      <v-card-text id="scroll-target">
         <v-form ref="form" v-model="valid">
           <!-- 日付選択 -->
           <v-menu
@@ -21,7 +22,7 @@
             <template v-slot:activator="{ on }">
               <v-text-field
                 v-model="item.insert_date"
-                prepend-icon="mdi-calendar"
+                prepend-inner-icon="mdi-calendar"
                 readonly
                 v-on="on"
               />
@@ -70,21 +71,17 @@
             :rules="[noteIdRule]"
           ></v-select>
           <!-- 開始時間 -->
-          <v-menu
-            ref="menu_start"
+          <v-dialog
+            ref="start"
             v-model="menu_start"
             :return-value.sync="item.start"
-            :close-on-content-click="false"
-            :close-on-click="false"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
+            persistent
+            width="290px"
           >
             <template v-slot:activator="{ on }">
               <v-text-field
                 v-model="item.start"
-                prepend-icon="mdi-clock-outline"
+                prepend-inner-icon="mdi-clock-outline"
                 label="開始時間"
                 readonly
                 v-on="on"
@@ -92,6 +89,7 @@
             </template>
 
             <v-time-picker
+              v-if="menu_start"
               v-model="item.start"
               :max="item.end"
               :allowed-hours="allowedHours"
@@ -101,49 +99,43 @@
             >
               <v-spacer />
               <v-btn text color="grey" @click="menu_start = false">キャンセル</v-btn>
-              <v-btn text color="primary" @click="$refs.menu_start.save(item.start)"
+              <v-btn text color="primary" @click="$refs.start.save(item.start)"
                 >選択</v-btn
               >
             </v-time-picker>
-          </v-menu>
+          </v-dialog>
 
           <!-- 終了時間 -->
-          <v-menu
-            ref="menu_end"
+          <v-dialog
+            ref="end"
             v-model="menu_end"
             :return-value.sync="item.end"
-            :close-on-content-click="false"
-            :close-on-click="false"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
+            persistent
+            width="290px"
           >
             <template v-slot:activator="{ on }">
               <v-text-field
                 v-model="item.end"
-                prepend-icon="mdi-clock-outline"
+                prepend-inner-icon="mdi-clock-outline"
                 label="終了時間"
                 readonly
                 v-on="on"
               />
             </template>
             <v-time-picker
+              v-if="menu_end"
               v-model="item.end"
               :min="item.start"
               max="16:00"
               :allowed-hours="allowedHours"
               :allowed-minutes="allowedStep"
               format="24hr"
-              scrollable
             >
               <v-spacer />
               <v-btn text color="grey" @click="menu_end = false">キャンセル</v-btn>
-              <v-btn text color="primary" @click="$refs.menu_end.save(item.end)"
-                >選択</v-btn
-              >
+              <v-btn text color="primary" @click="$refs.end.save(item.end)">選択</v-btn>
             </v-time-picker>
-          </v-menu>
+          </v-dialog>
 
           <!-- 食事提供加算 -->
           <v-checkbox
@@ -272,6 +264,7 @@ export default {
     onClickClose() {
       this.show = false
       this.resetForm()
+      this.$emit('scrollTop')
     },
 
     /** 登録／更新がクリックされたとき */
@@ -287,6 +280,7 @@ export default {
       this.loading = false
       this.show = false
       this.resetForm()
+      this.$emit('scrollTop')
     },
 
     /** 出欠記録登録 */
@@ -366,3 +360,9 @@ export default {
   },
 }
 </script>
+<style>
+.scroll-area {
+  height: auto;
+  overflow-y: hidden;
+}
+</style>

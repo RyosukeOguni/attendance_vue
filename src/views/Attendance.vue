@@ -3,7 +3,7 @@
     <v-card>
       <v-card-title>
         <!-- 所属校選択 -->
-        <v-col cols="4">
+        <v-col cols="2">
           <v-select
             v-model="school_id"
             :items="schools"
@@ -17,7 +17,7 @@
         </v-col>
 
         <!-- 日付選択 -->
-        <v-col cols="4">
+        <v-col cols="3">
           <v-menu
             ref="menu"
             v-model="menu"
@@ -32,7 +32,7 @@
             <template v-slot:activator="{ on }">
               <v-text-field
                 v-model="yearMonthDay"
-                prepend-icon="mdi-calendar"
+                prepend-inner-icon="mdi-calendar"
                 readonly
                 v-on="on"
                 hide-details
@@ -52,6 +52,17 @@
             </v-date-picker>
           </v-menu>
         </v-col>
+
+        <!-- 検索フォーム -->
+        <v-col cols="3" sm="3">
+          <v-text-field
+            v-model="search"
+            prepend-inner-icon="mdi-magnify"
+            label="Search"
+            single-line
+            hide-details
+          />
+        </v-col>
         <v-spacer />
 
         <!-- 追加ボタン -->
@@ -66,6 +77,7 @@
         :headers="tableHeaders"
         :items="attendanceData"
         :footer-props="footerProps"
+        :search="search"
         :loading="loading"
         :sort-by="'user_name'"
         :sort-desc="false"
@@ -100,7 +112,7 @@
       </v-data-table>
     </v-card>
     <!-- 追加／編集ダイアログ -->
-    <EditDialog ref="editDialog" @onClickAction="onClickAction" />
+    <EditDialog ref="editDialog" @onClickAction="onClickAction" @scrollTop="scrollTop" />
     <!-- 削除ダイアログ -->
     <DeleteDialog ref="deleteDialog" @onClickAction="onClickAction" />
   </div>
@@ -128,6 +140,8 @@ export default {
       school_id: 1,
       /** 選択年月 */
       yearMonthDay: common.getYearMonthDay(),
+      /** 検索文字 */
+      search: '',
       /** 出欠記録データ */
       attendanceData: [],
     }
@@ -223,6 +237,10 @@ export default {
     /** 削除ボタンがクリックされたとき */
     onClickDelete(item) {
       this.$refs.deleteDialog.open(item)
+    },
+    // 進行ボタンが押される度にモーダルスクロールを上部に移動
+    scrollTop() {
+      document.getElementById('scroll-target').scrollTop = 0
     },
   },
 }
