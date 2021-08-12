@@ -48,7 +48,8 @@ export default {
     /** 削除がクリックされたとき */
     async onClickDelete() {
       this.loading = true
-      await this.getAttendance(this.item)
+      await this.deleteAbData(this.item)
+      await this.$emit('onClickAction')
       this.loading = false
       this.show = false
     },
