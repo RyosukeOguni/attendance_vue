@@ -4,7 +4,7 @@
     <v-card>
       <v-card-title>ログイン</v-card-title>
       <v-divider />
-      <v-card-text class="mt-5">
+      <v-card-text class="pt-5">
         <!-- <v-alert v-if="errorMessage" type="warning" dense>ログインに失敗しました</v-alert> -->
         <v-form ref="form" v-model="valid">
           <!-- タイトル -->

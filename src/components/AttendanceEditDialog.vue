@@ -360,9 +360,3 @@ export default {
   },
 }
 </script>
-<style>
-.scroll-area {
-  height: auto;
-  overflow-y: hidden;
-}
-</style>
