@@ -1,13 +1,301 @@
 <template>
-  <v-container>
-    <v-row class="text-center">
-      <v-col cols="12">Output </v-col>
-    </v-row>
-  </v-container>
+  <div>
+    <v-card>
+      <v-card-title>
+        <!-- 所属校選択 -->
+        <v-col cols="2">
+          <v-select
+            v-model="school_id"
+            :items="schools"
+            item-text="school_name"
+            item-value="id"
+            label="所属校"
+            hide-details
+            max-width="290px"
+            min-width="290px"
+          ></v-select>
+        </v-col>
+
+        <!-- 日付選択 -->
+        <v-col cols="2">
+          <v-menu
+            ref="menu"
+            v-model="menu"
+            :close-on-content-click="false"
+            :close-on-click="false"
+            :return-value.sync="yearMonth"
+            transition="scale-transition"
+            offset-y
+            max-width="290px"
+            min-width="290px"
+          >
+            <template v-slot:activator="{ on }">
+              <v-text-field
+                v-model="yearMonth"
+                prepend-inner-icon="mdi-calendar"
+                readonly
+                v-on="on"
+                hide-details
+              />
+            </template>
+            <v-date-picker
+              v-model="yearMonth"
+              type="month"
+              color="green"
+              locale="ja-jp"
+              :day-format="(date) => new Date(date).getDate()"
+              no-title
+              scrollable
+            >
+              <v-spacer />
+              <v-btn text color="grey" @click="menu = false">キャンセル</v-btn>
+              <v-btn text color="primary" @click="onSelectMonth">選択</v-btn>
+            </v-date-picker>
+          </v-menu>
+        </v-col>
+
+        <!-- 利用者 -->
+        <v-col cols="3" sm="3">
+          <v-select
+            v-model="user_id"
+            :items="userListSelect(school_id)"
+            item-text="name"
+            item-value="id"
+            label="利用者"
+            no-data-text="所属校を選択して下さい"
+            hide-details
+          ></v-select>
+        </v-col>
+        <v-spacer />
+
+        <!-- 追加ボタン -->
+        <v-col class="text-right" cols="4">
+          <v-btn dark color="green" @click="onClickAdd()"> 出欠記録作成 </v-btn>
+        </v-col>
+      </v-card-title>
+
+      <!-- テーブル -->
+      <v-data-table
+        class="text-no-wrap"
+        :headers="tableHeaders"
+        :items="attendanceData"
+        :footer-props="footerProps"
+        :loading="loading"
+        :sort-by="'user_name'"
+        :sort-desc="false"
+        :items-per-page="30"
+        mobile-breakpoint="0"
+      >
+        <!-- 開始時刻 -->
+        <template #item.start="{ item }">
+          {{ item.attribute.start }}
+        </template>
+        <!-- 終了時刻 -->
+        <template #item.end="{ item }">
+          {{ item.attribute.end }}
+        </template>
+        <!-- 食事提供加算 -->
+        <template #item.food_fg="{ item }">
+          <v-icon>{{ changeIcon(item.attribute.food_fg) }}</v-icon>
+        </template>
+        <!-- 施設外支援 -->
+        <template #item.outside_fg="{ item }">
+          <v-icon>{{ changeIcon(item.attribute.outside_fg) }}</v-icon>
+        </template>
+        <!-- 医療連携体制加算 -->
+        <template #item.medical_fg="{ item }">
+          <v-icon>{{ changeIcon(item.attribute.medical_fg) }}</v-icon>
+        </template>
+        <!-- 操作列 -->
+        <template v-slot:item.actions="{ item }">
+          <v-icon class="mr-2" @click="onClickEdit(item)">mdi-pencil</v-icon>
+          <v-icon @click="onClickDelete(item)">mdi-delete</v-icon>
+        </template>
+      </v-data-table>
+    </v-card>
+    <!-- 追加／編集ダイアログ -->
+    <EditDialog ref="editDialog" @onClickAction="onClickAction" @scrollTop="scrollTop" />
+    <!-- 削除ダイアログ -->
+    <DeleteDialog ref="deleteDialog" @onClickAction="onClickAction" />
+  </div>
 </template>
 
 <script>
+import EditDialog from '../components/AttendanceEditDialog.vue'
+import DeleteDialog from '../components/AttendanceDeleteDialog.vue'
+import common from '../plugins/common.js'
+import axios from 'axios'
+import { mapState } from 'vuex'
 export default {
   name: 'Output',
+  components: {
+    EditDialog,
+    DeleteDialog,
+  },
+  data() {
+    return {
+      /** ローディング状態 */
+      loading: false,
+      /** 日付選択メニューの状態 */
+      menu: false,
+      /** 所属校選択 */
+      school_id: 1,
+      /** 所属校選択 */
+      user_id: null,
+      /** 選択年月 */
+      yearMonth: common.getYearMonthDay().substr(0, 7),
+      /** 利用者リスト */
+      usersList: [],
+      /** 出欠記録データ */
+      attendanceData: [],
+    }
+  },
+  /** 所属校を変更時に出欠記録テーブルを更新 */
+  watch: {
+    school_id: {
+      handler(newValue, oldValue) {
+        if (newValue !== oldValue) {
+          this.user_id = null
+        }
+      },
+    },
+    user_id: function () {
+      this.updateTable()
+    },
+  },
+  created() {
+    /** 利用者リストを取得 */
+    this.getUsers()
+  },
+  computed: {
+    /** settingモジュールからstateを呼び出し */
+    ...mapState('setting', ['schools']),
+
+    /** 所属校で利用者を出し分け（引数で結果を返すcomputed） */
+    userListSelect: function () {
+      return function (school_id) {
+        return this.usersList.filter((data) => data.school_id === school_id)
+      }
+    },
+
+    /** テーブルのヘッダー設定 */
+    tableHeaders() {
+      return [
+        // { text: '利用者', value: 'user_name' },
+        { text: '日付', value: 'insert_date' },
+        { text: '開始時刻', value: 'start' },
+        { text: '終了時刻', value: 'end' },
+        { text: '食事提供加算', value: 'food_fg', align: 'center', sortable: false },
+        { text: '施設外支援', value: 'outside_fg', align: 'center', sortable: false },
+        {
+          text: '医療連携体制加算',
+          value: 'medical_fg',
+          align: 'center',
+          sortable: false,
+        },
+        { text: '備考', value: 'note' },
+        { text: '操作', value: 'actions', sortable: false },
+      ]
+    },
+
+    /** テーブルのフッター設定 */
+    footerProps() {
+      return { itemsPerPageText: '', itemsPerPageOptions: [] }
+    },
+  },
+
+  methods: {
+    /** 出欠記録テーブルを更新 */
+    async updateTable() {
+      this.loading = true
+      await this.getAtData()
+      this.loading = false
+    },
+
+    /** 出欠記録をAPIから取得 */
+    async getAtData() {
+      const toMonth = common.getYearMonth(this.yearMonth)
+      const lastDay = common.getLastDay(this.yearMonth)
+      this.attendanceData = []
+      for (let i = 0; i < lastDay; i++) {
+        let today = common.changeYearMonthDay(toMonth)
+        this.attendanceData = [
+          ...this.attendanceData,
+          { insert_date: today, attribute: {} },
+        ]
+        toMonth.setDate(toMonth.getDate() + 1)
+      }
+      return await axios
+        .get('api/attendances' + `?user_id=${this.user_id}&year_month=${this.yearMonth}`)
+        .then((response) => {
+          let attribute = response.data.data.map((data) => {
+            return data.data.attribute
+          })
+          this.attendanceData = this.attendanceData.map((d) => {
+            attribute.forEach((element) => {
+              if (element.insert_date == d.insert_date) {
+                d.attribute = element
+              }
+            })
+            return d
+          })
+        })
+        .catch(() => {
+          this.attendanceData = []
+        })
+    },
+
+    /** 登録／更新／削除がクリックされたとき */
+    async onClickAction() {
+      this.loading = true
+      await this.updateTable()
+      this.loading = false
+    },
+
+    /** 月選択ボタンがクリックされたとき */
+    onSelectMonth() {
+      /** menu内で選択された値を親コンポーネントに返却 */
+      this.$refs.menu.save(this.yearMonth)
+      if (this.user_id !== null) {
+        this.updateTable()
+      }
+    },
+
+    /** 利用者リストをAPIから取得 */
+    async getUsers() {
+      return await axios
+        .get('api/users')
+        .then((response) => {
+          this.usersList = response.data.data.map((data) => {
+            let attribute = data.data.attribute
+            return attribute
+          })
+        })
+        .catch(() => {
+          this.attendanceData = []
+        })
+    },
+
+    /** boolean値をチェックアイコンに置換 */
+    changeIcon(num) {
+      return num ? 'mdi-check-bold' : null
+    },
+    /** 出欠記録作成ボタンがクリックされたとき */
+    onClickAdd() {
+      this.$refs.editDialog.open('add')
+    },
+    /** 編集ボタンがクリックされたとき */
+    onClickEdit(item) {
+      this.$refs.editDialog.open('edit', item.attribute)
+    },
+    /** 削除ボタンがクリックされたとき */
+    onClickDelete(item) {
+      this.$refs.deleteDialog.open(item.attribute)
+    },
+    // 進行ボタンが押される度にモーダルスクロールを上部に移動
+    scrollTop() {
+      document.getElementById('scroll-target').scrollTop = 0
+    },
+  },
 }
 </script>
