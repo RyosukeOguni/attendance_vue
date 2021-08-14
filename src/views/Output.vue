@@ -106,6 +106,10 @@
         <template #item.medical_fg="{ item }">
           <v-icon>{{ changeIcon(item.attribute.medical_fg) }}</v-icon>
         </template>
+        <!-- 備考 -->
+        <template #item.note="{ item }">
+          {{ item.attribute.note }}
+        </template>
         <!-- 操作列 -->
         <template v-slot:item.actions="{ item }">
           <v-icon class="mr-2" @click="onClickEdit(item)">mdi-pencil</v-icon>
