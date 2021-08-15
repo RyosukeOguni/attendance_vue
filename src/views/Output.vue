@@ -112,8 +112,11 @@
         </template>
         <!-- 操作列 -->
         <template v-slot:item.actions="{ item }">
-          <v-icon class="mr-2" @click="onClickEdit(item)">mdi-pencil</v-icon>
-          <v-icon @click="onClickDelete(item)">mdi-delete</v-icon>
+          <div v-if="!!Object.keys(item.attribute).length">
+            <v-icon class="mr-2" @click="onClickEdit(item)">mdi-pencil</v-icon>
+            <v-icon @click="onClickDelete(item)">mdi-delete</v-icon>
+          </div>
+          <v-icon v-else @click="onClickAdd(item)">mdi-plus-box-outline</v-icon>
         </template>
       </v-data-table>
     </v-card>
@@ -285,8 +288,9 @@ export default {
       return num ? 'mdi-check-bold' : null
     },
     /** 出欠記録作成ボタンがクリックされたとき */
-    onClickAdd() {
-      this.$refs.editDialog.open('add')
+    onClickAdd(item) {
+      item = { ...item, school_id: this.school_id, user_id: this.user_id }
+      this.$refs.editDialog.open('add', item)
     },
     /** 編集ボタンがクリックされたとき */
     onClickEdit(item) {

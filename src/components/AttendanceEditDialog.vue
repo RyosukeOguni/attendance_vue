@@ -258,6 +258,11 @@ export default {
         delete this.item.user_name
         delete this.item.note
       }
+      if ('attribute' in item) {
+        this.item.insert_date = item.insert_date
+        this.item.school_id = item.school_id
+        this.item.user_id = item.user_id
+      }
     },
 
     /** キャンセルがクリックされたとき */
