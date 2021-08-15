@@ -14,7 +14,7 @@
       ></v-progress-linear>
     </v-app-bar>
 
-    <v-navigation-drawer v-model="drawer" absolute temporary>
+    <v-navigation-drawer v-model="drawer" app temporary>
       <v-list nav dense>
         <v-progress-linear
           :active="loading"
@@ -71,9 +71,9 @@
     </v-navigation-drawer>
 
     <v-main>
-      <v-container>
-        <router-view />
-      </v-container>
+      <!-- <v-container> -->
+      <router-view />
+      <!-- </v-container> -->
     </v-main>
     <!-- ログインダイアログ -->
     <LoginDialog ref="loginDialog" />
@@ -120,3 +120,9 @@ export default {
   },
 }
 </script>
+<style>
+main {
+  background-color: #1976d2;
+  color: #ffffff;
+}
+</style>

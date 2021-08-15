@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container>
     <v-card>
       <v-card-title>
         <!-- 所属校選択 -->
@@ -115,7 +115,7 @@
     <EditDialog ref="editDialog" @onClickAction="onClickAction" @scrollTop="scrollTop" />
     <!-- 削除ダイアログ -->
     <DeleteDialog ref="deleteDialog" @onClickAction="onClickAction" />
-  </div>
+  </v-container>
 </template>
 
 <script>
