@@ -327,9 +327,9 @@ export default {
         /** 備考ID */
         note_id: null,
         /** 開始時間 */
-        start: '10:00',
+        start: '',
         /** 終了時間 */
-        end: '16:00',
+        end: '',
         /** 食事提供加算 */
         food_fg: false,
         /** 施設外支援フラグ */

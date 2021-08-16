@@ -1,17 +1,8 @@
 <template>
   <v-app>
-    <v-app-bar color="blue darken-2" dark app dense>
+    <v-app-bar color="blue darken-2" dark app flat dense>
       <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
-
       <v-toolbar-title class="text-subtitle-1">出欠管理システム</v-toolbar-title>
-
-      <v-progress-linear
-        :active="loading"
-        :indeterminate="loading"
-        absolute
-        bottom
-        color="orange accent-2"
-      ></v-progress-linear>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" app temporary>
@@ -121,6 +112,9 @@ export default {
 }
 </script>
 <style>
+.v-toolbar__content {
+  border-bottom: #fff solid 1px;
+}
 main {
   background-color: #1976d2;
   color: #ffffff;
