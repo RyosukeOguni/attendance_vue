@@ -79,13 +79,17 @@
         class="text-no-wrap"
         :headers="tableHeaders"
         :items="attendanceData"
-        :footer-props="footerProps"
         :loading="loading"
         :sort-by="'user_name'"
         :sort-desc="false"
-        :items-per-page="30"
+        :items-per-page="31"
         mobile-breakpoint="0"
+        hide-default-footer
       >
+        <!-- 日付 -->
+        <template #item.insert_date="{ item }">
+          {{ changeYearMonthDayWeek(item.insert_date) }}
+        </template>
         <!-- 開始時刻 -->
         <template #item.start="{ item }">
           {{ item.attribute.start }}
@@ -204,11 +208,6 @@ export default {
         { text: '操作', value: 'actions', sortable: false },
       ]
     },
-
-    /** テーブルのフッター設定 */
-    footerProps() {
-      return { itemsPerPageText: '', itemsPerPageOptions: [] }
-    },
   },
 
   methods: {
@@ -225,7 +224,8 @@ export default {
       const lastDay = common.getLastDay(this.yearMonth)
       this.attendanceData = []
       for (let i = 0; i < lastDay; i++) {
-        let today = common.changeYearMonthDay(toMonth)
+        /** 出欠記録をAPIから取得 */
+        let today = new Date(toMonth.getTime())
         this.attendanceData = [
           ...this.attendanceData,
           { insert_date: today, attribute: {} },
@@ -239,9 +239,9 @@ export default {
             return data.data.attribute
           })
           this.attendanceData = this.attendanceData.map((d) => {
-            attribute.forEach((element) => {
-              if (element.insert_date == d.insert_date) {
-                d.attribute = element
+            attribute.forEach((e) => {
+              if (e.insert_date == common.changeYearMonthDay(d.insert_date)) {
+                d.attribute = e
               }
             })
             return d
@@ -282,6 +282,9 @@ export default {
           this.attendanceData = []
         })
     },
+    changeYearMonthDayWeek(today) {
+      return common.changeYearMonthDayWeek(today)
+    },
 
     /** boolean値をチェックアイコンに置換 */
     changeIcon(num) {
@@ -290,6 +293,7 @@ export default {
     /** 出欠記録作成ボタンがクリックされたとき */
     onClickAdd(item) {
       item = { ...item, school_id: this.school_id, user_id: this.user_id }
+      item.insert_date = common.changeYearMonthDay(item.insert_date)
       this.$refs.editDialog.open('add', item)
     },
     /** 編集ボタンがクリックされたとき */

@@ -8,8 +8,10 @@
       color="orange accent-2"
     ></v-progress-linear>
     <div class="main text-center">
-      <p class="schoolname">{{ schoolName }}</p>
-      <p class="todaydate">today->isoFormat('YYYY年M月D日（ddd）')</p>
+      <!-- computed内のオブジェクトからプロパティを取り出す時、v-if="schoolName"をしておく -->
+      <!-- computedよりDOMが先に読まれる為？ -->
+      <p class="schoolname" v-if="schoolName">{{ schoolName.school_name }}</p>
+      <p class="todaydate">{{ changeYearMonthDayWeek }}</p>
       <p class="timer display-3">{{ timer }}</p>
 
       <div v-if="!!Object.keys(stamp).length" class="stampbox">
@@ -119,11 +121,15 @@ export default {
   computed: {
     /** settingモジュールからstateを呼び出し */
     ...mapState('setting', ['schools']),
+    /** settingモジュールからstateを呼び出し */
     schoolName() {
       const school = this.schools.find((data) => {
-        return data.id === this.school_id
+        return data.id == this.school_id
       })
       return school
+    },
+    changeYearMonthDayWeek() {
+      return common.changeYearMonthDayWeek(new Date())
     },
   },
   methods: {

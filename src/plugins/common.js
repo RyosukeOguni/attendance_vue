@@ -6,12 +6,21 @@ const getYearMonthDay = () => {
   const day = ('0' + today.getDate()).slice(-2)
   return `${year}-${month}-${day}`
 }
-/** 引数のDateオブジェクトを年月日の文字列で出力 */
+/** 引数のDateオブジェクトをYYYY-mm-dd文字列で出力 */
 const changeYearMonthDay = (today) => {
   const year = today.getFullYear()
   const month = ('0' + (today.getMonth() + 1)).slice(-2)
   const day = ('0' + today.getDate()).slice(-2)
   return `${year}-${month}-${day}`
+}
+/** 引数のDateオブジェクトを年月日(曜日)の文字列で出力 */
+const changeYearMonthDayWeek = (today) => {
+  const year = today.getFullYear()
+  const month = ('0' + (today.getMonth() + 1)).slice(-2)
+  const day = ('0' + today.getDate()).slice(-2)
+  const dayOfWeek = today.getDay()
+  const dayOfWeekStr = ['日', '月', '火', '水', '木', '金', '土'][dayOfWeek]
+  return `${year}年${month}月${day}日(${dayOfWeekStr})`
 }
 /** 年月からDate型のオブジェクトを生成 */
 const getYearMonth = (yearMonth) => {
@@ -46,6 +55,7 @@ function showClock(cb) {
 export default {
   getYearMonthDay,
   changeYearMonthDay,
+  changeYearMonthDayWeek,
   getYearMonth,
   getLastDay,
   showClock,
