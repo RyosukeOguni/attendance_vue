@@ -62,23 +62,35 @@ export default {
     /** Excelファイルを出力 */
     async outputAbExcel(item) {
       if (this.actionType === 'individual') {
-        return await axios
-          .post('api/outputs/individual', item)
-          .then((response) => {
-            window.location = response
+        try {
+          const { data } = await axios.post('api/outputs/individual', item, {
+            responseType: 'arraybuffer',
+            headers: { Accept: 'application/vnd.ms-excel' },
           })
-          .catch(() => {
-            alert('downloadに失敗しました')
-          })
+          const blob = new Blob([data], { type: 'application/vnd.ms-excel' })
+          const uri = URL.createObjectURL(blob)
+          let link = document.createElement('a')
+          link.download = `${item.year_month}-${item.user_id}-${item.user_name}.xlsx`
+          link.href = uri
+          link.click()
+        } catch (error) {
+          alert('downloadに失敗しました')
+        }
       } else {
-        return await axios
-          .post('api/outputs/bulk', item)
-          .then((response) => {
-            window.location = response
+        try {
+          const { data } = await axios.post('api/outputs/bulk', item, {
+            responseType: 'arraybuffer',
+            headers: { Accept: 'application/zip' },
           })
-          .catch(() => {
-            alert('downloadに失敗しました')
-          })
+          const blob = new Blob([data], { type: 'application/zip' })
+          const uri = URL.createObjectURL(blob)
+          let link = document.createElement('a')
+          link.download = `${item.year_month}-${item.school_name}.zip`
+          link.href = uri
+          link.click()
+        } catch (error) {
+          alert('downloadに失敗しました')
+        }
       }
     },
   },
