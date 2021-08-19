@@ -68,9 +68,13 @@
         </v-col>
         <v-spacer />
 
-        <!-- 追加ボタン -->
-        <v-col class="text-right" cols="4">
-          <v-btn dark color="green" @click="onClickAdd()"> 出欠記録作成 </v-btn>
+        <!-- 所属校一括出力ボタン -->
+        <v-col class="text-right" cols="2">
+          <v-btn dark color="warning" @click="onClickBulk()">所属校一括出力</v-btn>
+        </v-col>
+        <!-- 利用者個別出力ボタン -->
+        <v-col v-if="!!user_id" class="text-right" cols="2">
+          <v-btn dark color="green" @click="onClickOutput()">利用者個別出力</v-btn>
         </v-col>
       </v-card-title>
 
@@ -128,12 +132,15 @@
     <EditDialog ref="editDialog" @onClickAction="onClickAction" @scrollTop="scrollTop" />
     <!-- 削除ダイアログ -->
     <DeleteDialog ref="deleteDialog" @onClickAction="onClickAction" />
+    <!-- 出力ダイアログ -->
+    <OutputDialog ref="outputDialog" @onClickAction="onClickAction" />
   </v-container>
 </template>
 
 <script>
 import EditDialog from '../components/AttendanceEditDialog.vue'
 import DeleteDialog from '../components/AttendanceDeleteDialog.vue'
+import OutputDialog from '../components/OutputDialog.vue'
 import common from '../plugins/common.js'
 import axios from 'axios'
 import { mapState } from 'vuex'
@@ -142,6 +149,7 @@ export default {
   components: {
     EditDialog,
     DeleteDialog,
+    OutputDialog,
   },
   data() {
     return {
@@ -151,7 +159,7 @@ export default {
       menu: false,
       /** 所属校選択 */
       school_id: 1,
-      /** 所属校選択 */
+      /** 利用者選択 */
       user_id: null,
       /** 選択年月 */
       yearMonth: common.getYearMonthDay().substr(0, 7),
@@ -170,8 +178,14 @@ export default {
         }
       },
     },
-    user_id: function () {
-      this.updateTable()
+    user_id: {
+      handler(newValue) {
+        if (newValue === null) {
+          this.attendanceData = []
+        } else {
+          this.updateTable()
+        }
+      },
     },
   },
   created() {
@@ -303,6 +317,22 @@ export default {
     /** 削除ボタンがクリックされたとき */
     onClickDelete(item) {
       this.$refs.deleteDialog.open(item.attribute)
+    },
+    /** 所属校一括出力ボタンがクリックされたとき */
+    onClickBulk() {
+      this.$refs.outputDialog.open('bulk', {
+        school_id: this.school_id,
+        year_month: this.yearMonth,
+        school_name: this.schools.find((data) => data.id == this.school_id).school_name,
+      })
+    },
+    /** 利用者個別出力ボタンがクリックされたとき */
+    onClickOutput() {
+      this.$refs.outputDialog.open('individual', {
+        user_id: this.user_id,
+        year_month: this.yearMonth,
+        user_name: this.usersList.find((data) => data.id == this.user_id).name,
+      })
     },
     // 進行ボタンが押される度にモーダルスクロールを上部に移動
     scrollTop() {
