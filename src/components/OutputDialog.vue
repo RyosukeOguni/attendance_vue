@@ -4,9 +4,8 @@
     <v-card>
       <v-card-title />
       <v-card-text class="black--text"
-        >[{{ item.year_month }}:{{
-          item.user_name ? item.user_name : item.school_name
-        }}]を出力しますか？
+        >[{{ item.year_month }}] {{ item.user_name ? item.user_name : item.school_name }}
+        <br />を出力しますか？
       </v-card-text>
       <v-card-actions>
         <v-spacer />

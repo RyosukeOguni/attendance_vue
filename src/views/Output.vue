@@ -70,11 +70,11 @@
 
         <!-- 所属校一括出力ボタン -->
         <v-col class="text-right" cols="2">
-          <v-btn dark color="warning" @click="onClickBulk()">所属校一括出力</v-btn>
+          <v-btn dark block color="warning" @click="onClickBulk()">一括出力</v-btn>
         </v-col>
         <!-- 利用者個別出力ボタン -->
         <v-col v-if="!!user_id" class="text-right" cols="2">
-          <v-btn dark color="green" @click="onClickOutput()">利用者個別出力</v-btn>
+          <v-btn dark block color="green" @click="onClickOutput()">個別出力</v-btn>
         </v-col>
       </v-card-title>
 
