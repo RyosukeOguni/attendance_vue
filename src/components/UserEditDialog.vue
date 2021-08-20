@@ -56,7 +56,7 @@
 import axios from 'axios'
 import { mapState } from 'vuex'
 export default {
-  name: 'EditDialog',
+  name: 'UserEditDialog',
 
   data() {
     return {
@@ -71,7 +71,6 @@ export default {
       /** 利用者データ */
       item: this.setItemDate(),
       /** バリデーションルール */
-
       userNameRule: [
         (v) => v.trim().length > 0 || '利用者名を入力して下さい',
         (v) => v.length <= 20 || '20文字以内で入力してください',
@@ -97,10 +96,7 @@ export default {
   },
 
   methods: {
-    /**
-     * ダイアログを表示します。
-     * このメソッドは親から呼び出されます。
-     */
+    /** ダイアログを表示（親から呼び出し） */
     open(actionType, item) {
       this.show = true
       this.actionType = actionType
@@ -110,14 +106,12 @@ export default {
         delete this.item.note
       }
     },
-
     /** キャンセルがクリックされたとき */
     onClickClose() {
       this.show = false
       this.resetForm()
       this.$emit('scrollTop')
     },
-
     /** 登録／更新がクリックされたとき */
     async onClickAction() {
       this.loading = true
@@ -133,7 +127,6 @@ export default {
       this.resetForm()
       this.$emit('scrollTop')
     },
-
     /** 利用者登録 */
     async addAtData(item) {
       let json = { ...item }
@@ -145,7 +138,6 @@ export default {
         })
         .catch(() => {})
     },
-
     /** 利用者更新 */
     async updateAtData(item) {
       let json = { ...item }
@@ -158,7 +150,6 @@ export default {
         })
         .catch(() => {})
     },
-
     /** 利用者オブジェクトを生成 */
     setItemDate() {
       return {
@@ -170,7 +161,6 @@ export default {
         school_id: null,
       }
     },
-
     /** フォームの内容を初期化 */
     resetForm() {
       this.item = this.setItemDate()

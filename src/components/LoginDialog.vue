@@ -76,17 +76,16 @@ export default {
   computed: {
     ...mapState('auth', ['loading', 'isAuth', 'errorMessage']),
   },
+
   // watch: {
   //   errorMessage() {
   //     this.error = true
   //   },
   // },
+
   methods: {
     ...mapActions('auth', ['login']),
-    /**
-     * ダイアログを表示します。
-     * このメソッドは親から呼び出されます。
-     */
+    /** ダイアログを表示（親から呼び出し） */
     open() {
       this.show = true
       this.resetForm()

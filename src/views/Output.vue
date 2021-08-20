@@ -15,7 +15,6 @@
             min-width="290px"
           ></v-select>
         </v-col>
-
         <!-- 日付選択 -->
         <v-col cols="2">
           <v-menu
@@ -53,7 +52,6 @@
             </v-date-picker>
           </v-menu>
         </v-col>
-
         <!-- 利用者 -->
         <v-col cols="3" sm="3">
           <v-select
@@ -67,7 +65,6 @@
           ></v-select>
         </v-col>
         <v-spacer />
-
         <!-- 所属校一括出力ボタン -->
         <v-col class="text-right" cols="2">
           <v-btn dark block color="warning" @click="onClickBulk()">一括出力</v-btn>
@@ -146,11 +143,13 @@ import axios from 'axios'
 import { mapState } from 'vuex'
 export default {
   name: 'Output',
+
   components: {
     EditDialog,
     DeleteDialog,
     OutputDialog,
   },
+
   data() {
     return {
       /** ローディング状態 */
@@ -169,8 +168,8 @@ export default {
       attendanceData: [],
     }
   },
-  /** 所属校を変更時に出欠記録テーブルを更新 */
   watch: {
+    /** 所属校変更時に利用者をリセット */
     school_id: {
       handler(newValue, oldValue) {
         if (newValue !== oldValue) {
@@ -178,31 +177,33 @@ export default {
         }
       },
     },
+    /** 利用者変更時に出欠記録テーブルを更新 */
     user_id: {
       handler(newValue) {
         if (newValue === null) {
+          /** 変更後がnullの場合、出欠記録を空にする */
           this.attendanceData = []
         } else {
+          /** 別の利用者に変更時、出欠記録を取得 */
           this.updateTable()
         }
       },
     },
   },
+
   created() {
     /** 利用者リストを取得 */
     this.getUsers()
   },
-  computed: {
-    /** settingモジュールからstateを呼び出し */
-    ...mapState('setting', ['schools']),
 
+  computed: {
+    ...mapState('setting', ['schools']),
     /** 所属校で利用者を出し分け（引数で結果を返すcomputed） */
     userListSelect: function () {
       return function (school_id) {
         return this.usersList.filter((data) => data.school_id === school_id)
       }
     },
-
     /** テーブルのヘッダー設定 */
     tableHeaders() {
       return [
@@ -231,7 +232,6 @@ export default {
       await this.getAtData()
       this.loading = false
     },
-
     /** 出欠記録をAPIから取得 */
     async getAtData() {
       const toMonth = common.getYearMonth(this.yearMonth)
@@ -265,14 +265,12 @@ export default {
           this.attendanceData = []
         })
     },
-
     /** 登録／更新／削除がクリックされたとき */
     async onClickAction() {
       this.loading = true
       await this.updateTable()
       this.loading = false
     },
-
     /** 月選択ボタンがクリックされたとき */
     onSelectMonth() {
       /** menu内で選択された値を親コンポーネントに返却 */
@@ -281,7 +279,6 @@ export default {
         this.updateTable()
       }
     },
-
     /** 利用者リストをAPIから取得 */
     async getUsers() {
       return await axios
@@ -299,7 +296,6 @@ export default {
     changeYearMonthDayWeek(today) {
       return common.changeYearMonthDayWeek(today)
     },
-
     /** boolean値をチェックアイコンに置換 */
     changeIcon(num) {
       return num ? 'mdi-check-bold' : null
@@ -334,7 +330,7 @@ export default {
         user_name: this.usersList.find((data) => data.id == this.user_id).name,
       })
     },
-    // 進行ボタンが押される度にモーダルスクロールを上部に移動
+    /** モーダルスクロールを上部に移動 */
     scrollTop() {
       document.getElementById('scroll-target').scrollTop = 0
     },

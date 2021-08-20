@@ -39,11 +39,7 @@ export default {
 
   methods: {
     ...mapActions('auth', ['logout']),
-
-    /**
-     * ダイアログを表示します。
-     * このメソッドは親から呼び出されます。
-     */
+    /** ダイアログを表示（親から呼び出し） */
     open() {
       this.show = true
     },

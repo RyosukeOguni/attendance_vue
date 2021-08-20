@@ -185,7 +185,7 @@ import axios from 'axios'
 import common from '../plugins/common.js'
 import { mapState } from 'vuex'
 export default {
-  name: 'EditDialog',
+  name: 'AttendanceEditDialog',
 
   data() {
     return {
@@ -231,8 +231,9 @@ export default {
       }
     },
   },
-  /** 所属校セレクトを変更時に出欠記録テーブルを更新 */
+
   watch: {
+    /** 所属校セレクトを変更時に出欠記録テーブルを更新 */
     'item.school_id': {
       handler(newValue, oldValue) {
         if (newValue !== oldValue && oldValue !== null) {
@@ -241,15 +242,14 @@ export default {
       },
     },
   },
-  /** 利用者リストを取得 */
+
   created() {
+    /** ダイアログ表示時に利用者リストを読込 */
     this.getUsers()
   },
+
   methods: {
-    /**
-     * ダイアログを表示します。
-     * このメソッドは親から呼び出されます。
-     */
+    /** ダイアログを表示（親から呼び出し） */
     open(actionType, item) {
       this.show = true
       this.actionType = actionType
@@ -264,14 +264,12 @@ export default {
         this.item.user_id = item.user_id
       }
     },
-
     /** キャンセルがクリックされたとき */
     onClickClose() {
       this.show = false
       this.resetForm()
       this.$emit('scrollTop')
     },
-
     /** 登録／更新がクリックされたとき */
     async onClickAction() {
       this.loading = true
@@ -287,7 +285,6 @@ export default {
       this.resetForm()
       this.$emit('scrollTop')
     },
-
     /** 出欠記録登録 */
     async addAtData(item) {
       let json = { ...item }
@@ -300,7 +297,6 @@ export default {
         })
         .catch(() => {})
     },
-
     /** 出欠記録更新 */
     async updateAtData(item) {
       let json = { ...item }
@@ -314,7 +310,6 @@ export default {
         })
         .catch(() => {})
     },
-
     /** 出欠記録オブジェクトを生成 */
     setItemDate() {
       return {
@@ -327,9 +322,9 @@ export default {
         /** 備考ID */
         note_id: null,
         /** 開始時間 */
-        start: '',
+        start: '10:00',
         /** 終了時間 */
-        end: '',
+        end: '16:00',
         /** 食事提供加算 */
         food_fg: false,
         /** 施設外支援フラグ */
@@ -338,7 +333,6 @@ export default {
         medical_fg: false,
       }
     },
-
     /** 利用者リストをAPIから取得 */
     async getUsers() {
       return await axios
@@ -353,14 +347,14 @@ export default {
           this.attendanceData = []
         })
     },
-
     /** フォームの内容を初期化 */
     resetForm() {
       this.item = this.setItemDate()
       this.$refs.form.resetValidation()
     },
-    /** 時刻設定 */
+    /** 時刻設定:時間の範囲 */
     allowedHours: (v) => v >= 10 && v <= 16,
+    /** 時刻設定:15分間隔 */
     allowedStep: (m) => m % 15 === 0,
   },
 }

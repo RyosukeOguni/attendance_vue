@@ -8,41 +8,42 @@
       color="orange accent-2"
     ></v-progress-linear>
     <div class="main text-center">
-      <!-- computed内のオブジェクトからプロパティを取り出す時、v-if="schoolName"をしておく -->
-      <!-- computedよりDOMが先に読まれる為？ -->
+      <!-- computed内のオブジェクトからプロパティを取り出す場合、v-if="schoolName"をしておく -->
       <p class="schoolname" v-if="schoolName">{{ schoolName.school_name }}</p>
       <p class="todaydate">{{ changeYearMonthDayWeek }}</p>
       <p class="timer display-3">{{ timer }}</p>
-
-      <div v-if="!!Object.keys(stampData).length" class="stampbox">
+      <!-- 打刻者リストから打刻者が選択された場合に表示 -->
+      <div v-if="!!Object.keys(stampData).length" class="mt-10">
         <p class="username">
           <span class="display-2">{{ stampData.name }}</span
           >さん
         </p>
         <!-- 退席 -->
-        <div v-if="stampData.attendance_status === 1">
+        <div v-if="stampData.attendance_status === 1" class="mt-10">
           <v-btn class="bt_round" :loading="bt_loading" @click="updateAtData(stampData)">
             OUT
           </v-btn>
         </div>
         <!-- 退席後 -->
-        <div v-else-if="stampData.attendance_status === 2">
-          <p class="msg">本日はお疲れ様でした！</p>
-          <p class="msg">右リストから利用者名を選択して下さい</p>
+        <div v-else-if="stampData.attendance_status === 2" class="mt-10">
+          <p class="msg">
+            本日はお疲れ様でした！<br />右リストから利用者名を選択して下さい
+          </p>
         </div>
         <!-- 出席 -->
-        <div v-else>
+        <div v-else class="mt-10">
           <v-btn class="bt_round" :loading="bt_loading" @click="addAtData(stampData)">
             IN
           </v-btn>
         </div>
       </div>
-
+      <!-- 打刻者未選択 -->
       <div v-else class="stampbox">
         <p class="msg">右リストから利用者名を選択して下さい</p>
       </div>
     </div>
 
+    <!-- 打刻者リスト -->
     <div class="side d-flex flex-row">
       <v-list-item-group :loading="loading" class="userslist">
         <v-list-item
@@ -64,6 +65,7 @@
           </p>
         </v-list-item>
       </v-list-item-group>
+      <!-- カナインデックス -->
       <v-list-item-group class="kanaindex">
         <v-list-item
           v-for="(value, key) in kanaIndex"
@@ -85,6 +87,7 @@ import { mapState } from 'vuex'
 
 export default {
   name: 'Stamp',
+
   data() {
     return {
       /** ローディング状態 */
@@ -96,13 +99,15 @@ export default {
       school_id: this.$route.params.id,
       /** 時刻 */
       timer: '',
-      /** 打刻対象者リスト */
+      /** 打刻者リスト */
       stampList: [],
-      /** 打刻対象者 */
+      /** 打刻者 */
       stampData: {},
     }
   },
+
   watch: {
+    /** ルートパラメーターが変更された場合 */
     $route() {
       this.school_id = this.$route.params.id
       this.stampList = []
@@ -111,27 +116,32 @@ export default {
       this.updateTable()
     },
   },
+
   created() {
     /** 1秒ごとにtimerSet()を実行 */
     setInterval(() => {
-      /** () => {}でmethodsを囲まないと動かない */
+      /**  () => {}でtimerSet()を囲まないと動かない！ */
       this.timerSet()
     }, 1000)
-    /** 打刻対象者を取得 */
+
+    /** 打刻者リストを取得 */
     this.updateTable()
   },
+
   computed: {
     /** settingモジュールからstateを呼び出し */
     ...mapState('setting', ['schools']),
-    /** settingモジュールからstateを呼び出し */
+    /** storeから取得したschoolsからルートパスのidで所属校を取り出し */
     schoolName() {
       return this.schools.find((data) => {
         return data.id == this.school_id
       })
     },
+    /** 年月日（曜日）を取得 */
     changeYearMonthDayWeek() {
       return common.changeYearMonthDayWeek(new Date())
     },
+    /** 打刻者リストをカナインデックスでfilter */
     stampListFilter() {
       let list = this.stampList
       if (this.index !== '*') {
@@ -141,6 +151,7 @@ export default {
       }
       return list
     },
+    /** カナインデックス */
     kanaIndex() {
       return {
         ALL: '*',
@@ -157,12 +168,13 @@ export default {
       }
     },
   },
+
   methods: {
     /** カナインデックスが押された時 */
     kanaFilter(kana) {
       this.index = kana
     },
-    /** 利用者テーブルを更新 */
+    /** 打刻者リストを更新 */
     async updateTable() {
       this.loading = true
       await this.getAtData()
@@ -250,9 +262,6 @@ export default {
   width: 60%;
   padding: 2% 0;
 }
-.main .stampbox {
-  margin-top: 10%;
-}
 .main .bt_round {
   display: inline-block;
   text-align: center;
@@ -271,7 +280,6 @@ export default {
   color: #1976d2;
   background: #ffffff;
 }
-
 .side {
   min-width: fit-content;
   width: 40%;

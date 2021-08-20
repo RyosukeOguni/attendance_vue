@@ -3,9 +3,9 @@
   <v-dialog v-model="show" persistent max-width="290">
     <v-card>
       <v-card-title />
-      <v-card-text class="black--text"
-        >[{{ item.year_month }}] {{ item.user_name ? item.user_name : item.school_name }}
-        <br />を出力しますか？
+      <v-card-text
+        >[{{ item.year_month }}-{{ item.user_name ? item.user_name : item.school_name }}]
+        を出力しますか？
       </v-card-text>
       <v-card-actions>
         <v-spacer />
@@ -36,16 +36,12 @@ export default {
   },
 
   methods: {
-    /**
-     * ダイアログを表示します。
-     * このメソッドは親から呼び出されます。
-     */
+    /** ダイアログを表示（親から呼び出し） */
     open(actionType, item) {
       this.show = true
       this.actionType = actionType
       this.item = { ...item }
     },
-
     /** キャンセルがクリックされたとき */
     onClickClose() {
       this.show = false
@@ -57,7 +53,6 @@ export default {
       this.loading = false
       this.show = false
     },
-
     /** Excelファイルを出力 */
     async outputAbExcel(item) {
       if (this.actionType === 'individual') {

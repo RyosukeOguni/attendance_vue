@@ -15,7 +15,6 @@
             min-width="290px"
           ></v-select>
         </v-col>
-
         <!-- 日付選択 -->
         <v-col cols="3">
           <v-menu
@@ -52,7 +51,6 @@
             </v-date-picker>
           </v-menu>
         </v-col>
-
         <!-- 検索フォーム -->
         <v-col cols="3" sm="3">
           <v-text-field
@@ -64,7 +62,6 @@
           />
         </v-col>
         <v-spacer />
-
         <!-- 追加ボタン -->
         <v-col class="text-right" cols="4">
           <v-btn dark color="green" @click="onClickAdd()"> 出欠記録作成 </v-btn>
@@ -126,10 +123,12 @@ import axios from 'axios'
 import { mapState } from 'vuex'
 export default {
   name: 'Attendance',
+
   components: {
     EditDialog,
     DeleteDialog,
   },
+
   data() {
     return {
       /** ローディング状態 */
@@ -146,20 +145,22 @@ export default {
       attendanceData: [],
     }
   },
-  /** 所属校を変更時に出欠記録テーブルを更新 */
+
   watch: {
+    /** 所属校を変更時に出欠記録テーブルを更新 */
     school_id: function () {
       this.updateTable()
     },
   },
+
   created() {
     /** 所属校と日付から出欠管理記録を取得 */
     this.updateTable()
   },
+
   computed: {
     /** settingモジュールからstateを呼び出し */
     ...mapState('setting', ['schools']),
-
     /** テーブルのヘッダー設定 */
     tableHeaders() {
       return [
@@ -178,7 +179,6 @@ export default {
         { text: '操作', value: 'actions', sortable: false },
       ]
     },
-
     /** テーブルのフッター設定 */
     footerProps() {
       return { itemsPerPageText: '', itemsPerPageOptions: [] }
@@ -192,7 +192,6 @@ export default {
       await this.getAtData()
       this.loading = false
     },
-
     /** 出欠記録をAPIから取得 */
     async getAtData() {
       return await axios
@@ -207,28 +206,25 @@ export default {
           this.attendanceData = []
         })
     },
-
     /** 登録／更新／削除がクリックされたとき */
     async onClickAction() {
       this.loading = true
       await this.updateTable()
       this.loading = false
     },
-
     /** 月選択ボタンがクリックされたとき */
     onSelectMonth() {
       /** menu内で選択された値を親コンポーネントに返却 */
       this.$refs.menu.save(this.yearMonthDay)
       this.updateTable()
     },
-
     /** boolean値をチェックアイコンに置換 */
     changeIcon(num) {
       return num ? 'mdi-check-bold' : null
     },
     /** 出欠記録作成ボタンがクリックされたとき */
     onClickAdd() {
-      this.$refs.editDialog.open('add')
+      this.$refs.editDialog.open('add', {})
     },
     /** 編集ボタンがクリックされたとき */
     onClickEdit(item) {
@@ -238,7 +234,7 @@ export default {
     onClickDelete(item) {
       this.$refs.deleteDialog.open(item)
     },
-    // 進行ボタンが押される度にモーダルスクロールを上部に移動
+    /** モーダルスクロールを上部に移動 */
     scrollTop() {
       document.getElementById('scroll-target').scrollTop = 0
     },

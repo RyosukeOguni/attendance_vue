@@ -4,7 +4,7 @@
     <v-card>
       <v-card-title />
       <v-card-text class="black--text">
-        [{{ item.insert_date }}：{{ item.user_name }}]を削除しますか？
+        [{{ item.insert_date }}-{{ item.user_name }}] を削除しますか？
       </v-card-text>
       <v-card-actions>
         <v-spacer />
@@ -19,7 +19,7 @@
 <script>
 import axios from 'axios'
 export default {
-  name: 'DeleteDialog',
+  name: 'AttendanceDeleteDialog',
 
   data() {
     return {
@@ -33,10 +33,7 @@ export default {
   },
 
   methods: {
-    /**
-     * ダイアログを表示します。
-     * このメソッドは親から呼び出されます。
-     */
+    /** ダイアログを表示（親から呼び出し） */
     open(item) {
       this.show = true
       this.item = item
@@ -53,8 +50,7 @@ export default {
       this.loading = false
       this.show = false
     },
-
-    /** 出欠記録APIから削除 */
+    /** 出欠記録削除 */
     async deleteAbData(item) {
       return await axios
         .delete('api/attendances/' + item.id)

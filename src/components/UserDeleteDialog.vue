@@ -17,7 +17,7 @@
 <script>
 import axios from 'axios'
 export default {
-  name: 'DeleteDialog',
+  name: 'UserDeleteDialog',
 
   data() {
     return {
@@ -31,10 +31,7 @@ export default {
   },
 
   methods: {
-    /**
-     * ダイアログを表示します。
-     * このメソッドは親から呼び出されます。
-     */
+    /** ダイアログを表示（親から呼び出し） */
     open(item) {
       this.show = true
       this.item = item
@@ -51,7 +48,6 @@ export default {
       this.loading = false
       this.show = false
     },
-
     /** 利用者APIから削除 */
     async deleteAbData(item) {
       return await axios

@@ -15,7 +15,6 @@
             min-width="290px"
           ></v-select>
         </v-col>
-
         <!-- 検索フォーム -->
         <v-col cols="4" sm="4">
           <v-text-field
@@ -27,7 +26,6 @@
           />
         </v-col>
         <v-spacer />
-
         <!-- 追加ボタン -->
         <v-col class="text-right" cols="4">
           <v-btn dark color="green" @click="onClickAdd()">利用者登録</v-btn>
@@ -76,10 +74,12 @@ import axios from 'axios'
 import { mapState } from 'vuex'
 export default {
   name: 'User',
+
   components: {
     EditDialog,
     DeleteDialog,
   },
+
   data() {
     return {
       /** ローディング状態 */
@@ -92,15 +92,16 @@ export default {
       usersData: [],
     }
   },
+
   created() {
     /** 所属校から利用者記録を取得 */
     this.updateTable()
   },
+
   computed: {
     /** settingモジュールからstateを呼び出し */
     ...mapState('setting', ['schools']),
-
-    /** ダイアログのアクション */
+    /** 所属校リストに'全ての所属校'を追加 */
     schoolList() {
       return [
         {
@@ -110,7 +111,6 @@ export default {
         ...this.schools,
       ]
     },
-
     /** 所属校で利用者を出し分け（引数で結果を返すcomputed） */
     userListSelect: function () {
       return function (school_id) {
@@ -121,7 +121,6 @@ export default {
         }
       }
     },
-
     /** テーブルのヘッダー設定 */
     tableHeaders() {
       return [
@@ -134,7 +133,6 @@ export default {
         { text: '操作', value: 'actions', sortable: false },
       ]
     },
-
     /** テーブルのフッター設定 */
     footerProps() {
       return { itemsPerPageText: '', itemsPerPageOptions: [] }
@@ -148,7 +146,6 @@ export default {
       await this.getAtData()
       this.loading = false
     },
-
     /** 利用者をAPIから取得 */
     async getAtData() {
       return await axios
@@ -163,14 +160,12 @@ export default {
           this.usersData = []
         })
     },
-
     /** 登録／更新／削除がクリックされたとき */
     async onClickAction() {
       this.loading = true
       await this.updateTable()
       this.loading = false
     },
-
     /** timestamp型をYYYY-mm-ddに変換 */
     changeDate(timestamp) {
       const date = new Date(timestamp)
