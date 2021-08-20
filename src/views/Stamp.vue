@@ -203,7 +203,7 @@ export default {
       let json = {
         user_id: stamp.id,
         insert_date: common.getYearMonthDay(),
-        start: this.timer,
+        start: common.getRoundUpTime(),
       }
       return await axios
         .post('api/stamps', json)
@@ -225,7 +225,7 @@ export default {
     /** 退席 */
     async updateAtData(stamp) {
       this.bt_loading = true
-      let json = { end: this.timer }
+      let json = { end: common.getRoundUpTime() }
       return await axios
         .put('api/stamps/' + stamp.attendance_id, json)
         .then((response) => {

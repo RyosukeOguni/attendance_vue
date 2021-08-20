@@ -51,6 +51,30 @@ function showClock(cb) {
   let timer = nowHour + ':' + nowMin + ':' + nowSec
   cb(timer)
 }
+/** 時間を15分切り下げて取得 */
+function getRoundUpTime(margin_minutes = 15) {
+  let nowTime = new Date()
+  let hour = nowTime.getHours()
+  let minute = nowTime.getMinutes()
+  /**
+   * 10:00以前に打刻の場合、10:00に変更
+   * 16:00以降に打刻の場合、16:00に変更
+   */
+  if (hour < 10) {
+    return '10:00'
+  } else if (hour >= 16) {
+    return '16:00'
+  }
+  /** 分を15分単位で切り下げる */
+  if (minute % margin_minutes) {
+    minute += margin_minutes - (minute % margin_minutes)
+    if (minute === 60) {
+      minute = 0
+      hour++
+    }
+  }
+  return set2fig(hour) + ':' + set2fig(minute)
+}
 
 export default {
   getYearMonthDay,
@@ -59,4 +83,5 @@ export default {
   getYearMonth,
   getLastDay,
   showClock,
+  getRoundUpTime,
 }
