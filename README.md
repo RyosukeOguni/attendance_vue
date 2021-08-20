@@ -1,24 +1,26 @@
-# attendance_vue
+# 出欠管理SPA
 
-## Project setup
-```
-yarn install
-```
+[出欠管理API](https://github.com/RyosukeOguni/attendance_api)のフロントエンドSPA。
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
 
-### Compiles and minifies for production
-```
-yarn build
-```
+## １．設計資料
 
-### Lints and fixes files
-```
-yarn lint
-```
+-   [画面設計](https://drive.google.com/file/d/1SnSZXtZI_RW8MyoaQKi-5kJRKxoi9kHA/view?usp=sharing)
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+
+## ２．使用パッケージ・ライブラリ
+
+-   vue@2.6.14
+-   vue-router@3.5.2
+    -   シングルページアプリケーション機能の導入
+-   vuex@3.6.2
+    -   リアクティブデータの状態管理
+-   axios@0.21.1
+    -   非同期通信
+-   vuetify@2.5.8
+    -   UIフレームワーク
+
+
+## ３．作成者情報
+
+-   作成者：小国 亮介
